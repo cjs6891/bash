@@ -1,3 +1,5 @@
+Terminal Printing
+
 https://linux.die.net/man/1/echo
 
 echo, puts a new line after every "echo" invocation by default, printf does not
@@ -10,11 +12,12 @@ double quotes "" can't print special characters, i.e. a ! -or- ?
 # echo 'Hello!'
 Hello!
 
-*** variable substitution doesn't work with single quotes ''
+variable substitution doesn't work with single quotes ''
+
 
 https://linux.die.net/man/1/printf
 
-printf takes "" text delimited by spaces, by default printf doesn't print a new line by default like the echo command; it has to be specified with \n.
+printf takes "" text delimited by spaces, by default printf doesn't have new line by default like the echo command; it has to be specified with \n.
 
 # printf "Hello World."
 Hello World.[root@el7_blog.local]#
@@ -30,7 +33,7 @@ http://tldp.org/LDP/abs/html/colorizing.html
 
 Variables & Environmental Variables
 
-In BASH the type for every variable is STRING with -or- without quotes
+In BASH the type for every variable is string with or without quotes
 
 To view all the environmental variables issued to a terminal issue the # env command. 
 
@@ -92,3 +95,147 @@ add new path to $PATH variable
 # PATH="$PATH:/root/System_Administration"
 # export PATH
 # echo $PATH
+
+finding the length of a string
+
+# length=${#var}
+# var=0123456789
+echo ${#var}
+10
+
+Identifying the current shell
+To identify the shell which is currently being used, use the SHELL environment variable.
+
+# echo $SHELL
+/bin/bash
+
+#!/bin/bash
+
+
+Checking for super user (root)
+
+if [ $UID -ne 0 ]; then
+  echo "You're NOT root, please run as root."
+else
+  echo "You're root, be careful..."
+fi
+
+Modifying the Bash prompt string
+(username@hostname:~$)
+
+The PS1 environment variable defines the primary prompt. The default prompt is defined by a line in the ~/.bashrc file
+
+\u = username
+\h = hostname
+\W = current working directory
+
+# echo $PS1
+[\u@\h \W]\$
+
+Function to prepend to environment variables
+Environment variables are often used to store a list of paths of where to search for executables, libraries, and so on. Example, $PATH
+
+add "/root/System_Administration" to $PATH variable
+
+# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+
+# export PATH="$PATH:/root/System_Administration"
+# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/System_Administration
+
+
+Math with the shell
+The Bash shell performs basic arithmetic operations using the let, (( )), and [] commands. The expr and bc utilities are used to perform advanced operations.
+
+# no1=8
+# no2=4
+# let result=$no1+no2
+# echo $result
+12
+
+Other uses of let command are as follows:
+
+increment:
+# echo $no1
+8
+
+# let no1++
+# echo $no1
+9
+
+decrement
+# echo $no2
+4
+# let no2--
+# echo $no2
+3
+
+shorthands
+add 6 to no1
+# echo $no1
+9
+
+# let no1+=6
+# echo $no1
+15
+
+subtract 2 from no2
+# echo $no2
+3
+
+# let no2-=2
+# echo $no2
+1
+
+The [] operator is used in the same way as the let command
+# echo $no1 && echo $no2
+15
+1
+
+# result=$[ no1 + no2 ] && echo $result
+16
+
+The (( )) operator can also be used
+# result=$(( no1 + 100 )) && echo $result
+115
+
+The expr expression can be used for basic operations
+# result=`expr 3 + 4`
+# echo $result
+7
+
+# echo $no1
+15
+
+# result=$(expr $no1 + 10)
+# echo $result
+25
+
+The preceding methods do not support floating point numbers, and operate on integers only.
+
+The bc application, the precision calculator, is an advanced utility for mathematical operations. It has a wide range of options. We can perform floating point arithmetic and use advanced functions.
+
+# echo "4 * 0.56" | bc
+2.24
+
+# no=54
+# result=`echo "$no * 1.5" | bc`
+# echo $result
+81.0
+
+scale decimal places
+# echo "scale=2;22/7" | bc
+3.14
+# echo "scale=3;22/7" | bc
+3.142
+# echo "scale=4;22/7" | bc
+3.1428
+
+# echo "sqrt(100)" | bc
+10
+
+# echo "10^2" | bc
+100
+
+Playing with file descriptors and redirection
