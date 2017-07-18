@@ -1,0 +1,5 @@
+shebang:
+#!/bin/bash
+
+Shebang is a line on which #! is prefixed to the interpreter path. /bin/bash is the interpreter command path for Bash. A line starting with a # symbol is treated by the bash interpreter as a comment. Only the first line of a script can have a shebang to define the interpreter to be used to evaluate the script.
+
