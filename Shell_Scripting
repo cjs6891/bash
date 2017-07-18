@@ -1,5 +1,94 @@
-shebang:
-#!/bin/bash
+https://linux.die.net/man/1/echo
 
-Shebang is a line on which #! is prefixed to the interpreter path. /bin/bash is the interpreter command path for Bash. A line starting with a # symbol is treated by the bash interpreter as a comment. Only the first line of a script can have a shebang to define the interpreter to be used to evaluate the script.
+echo, puts a new line after every "echo" invocation by default, printf does not
 
+double quotes "" can't print special characters, i.e. a ! -or- ?
+
+# echo "Hello!"
+-bash: !": event not found
+
+# echo 'Hello!'
+Hello!
+
+*** variable substitution doesn't work with single quotes ''
+
+https://linux.die.net/man/1/printf
+
+printf takes "" text delimited by spaces, by default printf doesn't print a new line by default like the echo command; it has to be specified with \n.
+
+# printf "Hello World."
+Hello World.[root@el7_blog.local]#
+
+# printf "Hello World.\n"
+Hello World.
+[root@el7_blog.local]#
+
+Colorizing
+http://tldp.org/LDP/abs/html/colorizing.html
+
+ - - - - - 
+
+Variables & Environmental Variables
+
+In BASH the type for every variable is STRING with -or- without quotes
+
+To view all the environmental variables issued to a terminal issue the # env command. 
+
+# pgrep to obtain pid(s) for running processes
+
+https://linux.die.net/man/1/pgrep
+
+# pgrep httpd
+8499
+8500
+8501
+
+obtain environment variables of PID by using
+
+# cat /proc/PID/environ
+
+# cat /proc/8499/environ
+LANG=CPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/binNOTIFY_SOCKET=/run/systemd/notify
+
+use "tr" for substitution, ex. substitute '\0' with '\n'
+
+https://linux.die.net/man/1/tr
+
+# cat /proc/8499/environ | tr '\0' '\n'
+LANG=C
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+NOTIFY_SOCKET=/run/systemd/notify
+
+set variables:
+apple_count=5
+
+IF Variable has a space use '' -or- ""
+output='Hello World!'
+
+print variables
+# echo $apple_count
+5
+
+# echo ${apple_count}
+5
+
+# echo $output
+Hello World!
+
+# echo ${output}
+Hello World!
+
+the # export command is used to set the env variable
+
+# env | grep HISTSIZE
+HISTSIZE=1000
+
+# export HISTSIZE=2500
+# env | grep HISTSIZE
+HISTSIZE=2500
+
+add new path to $PATH variable
+
+# PATH="$PATH:/root/System_Administration"
+# export PATH
+# echo $PATH
