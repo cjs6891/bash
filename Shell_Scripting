@@ -398,3 +398,424 @@ Alternatively
 orange apple
 
 Visiting aliases
+An alias is a shortcut to replace typing a long-command sequence.
+
+Create an alias:
+$ alias new_command='command sequence'
+
+# alias yca='yum clean all'
+
+The alias command is temporary: aliases exist until we close the current terminal. To make an alias available to all shells, add this statement to the ~/.bashrc file. Commands in ~/.bashrc are always executed when a new interactive shell process is spawned
+
+# echo 'alias yca="yum clean all"' >> ~/.bashrc
+
+To remove an alias, remove its entry from ~/.bashrc (if any) or use the unalias command.
+
+*** When you create an alias, if the item being aliased already exists, it will be replaced by this newly aliased command for that user.
+
+Escaping aliases
+Given how easy it is to create an alias to masquerade as a native command, you should not run aliased commands as a privileged user. We can ignore any aliases currently defined, by escaping the command we want to run.
+
+$ \command
+
+The \ character escapes the command, running it without any aliased changes. When running privileged commands on an untrusted environment, it is always a good security practice to ignore aliases by prefixing the command with \. The attacker might have aliased the privileged command with his/her own custom command, to steal critical information that is provided by the user to the command.
+
+Listing aliases
+The alias command lists the currently defined aliases:
+
+# alias
+alias cp='cp -i'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+alias l.='ls -d .* --color=auto'
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+alias mv='mv -i'
+alias rm='rm -i'
+
+Grabbing information about the terminal
+While writing command-line shell scripts, we often need to manipulate information about the current terminal, such as the number of columns, rows, cursor positions, masked password fields, and so on.
+
+The tput and stty commands are utilities used for terminal manipulations.
+
+Return the number of columns and rows in a terminal:
+# tput cols
+80
+
+# tput lines
+24
+
+Return the current terminal name:
+# tput longname
+xterm terminal emulator (X Window System)
+
+Move the cursor to a 100,100 position:
+# tput cup 100 100
+
+Set the terminal background color:
+# tput setb 1
+
+*** The value of n can be a value in the range of 0 to 7
+
+Set the terminal foreground color:
+# tput setf 1
+
+*** The value of n can be a value in the range of 0 to 7
+
+*** Some commands including the common color ls may reset the foreground and background color, example # ls --color=auto
+
+Make text bold, using this command:
+# tput bold
+
+Perform start and end underlining:
+# tput smul
+# tput rmul
+
+To delete from the cursor to the end of the line, use the following command:
+# tput ed
+
+A script should not display the characters while entering a password. The following example demonstrates disabling character echo with the stty command:
+
+ - - - - - START SCRIPT - - - - - 
+#!/bin/sh
+#Filename: password.sh
+
+echo -e "Enter password: "
+
+# disable echo before reading password
+stty -echo
+
+read password
+# re-enable echo
+
+stty echo
+echo
+echo Password read.
+ - - - - - END SCRIPT - - - - - 
+
+Getting and setting dates and delays
+A time delay is used to wait a set amount of time(such as 1 second) during the program execution, or to monitor a task every few seconds (or every few months). Working with times and dates requires an understanding of how time and date are represented and manipulated. 
+
+Dates can be printed in a variety of formats. Internally, dates are stored as an integer number of seconds since 00:00:00 1970-01-01. This is called epoch or Unix time.
+
+Read the date:
+# date
+Tue Jul 25 15:52:36 EDT 2017
+
+Print the epoch time:
+# date +%s
+1501012376
+
+Convert the date string into epoch:
+# date --date "09/09/1986" +%s
+526622400
+
+# date --date "Tue Sep  9 00:00:00 EDT 1986" +%s
+526622400
+
+The --date option defines a date string as input. We can use any date formatting options to print the output.
+
+# date --date "Jan 20 2001" +%A
+Saturday
+
+Use a combination of format strings prefixed with + as an argument for the date command, to print the date in the format of your choice.
+
+# date "+%Y.%m.%d"
+2017.07.25
+
+Set the date and time:
+# date -s "Formatted date string"
+# date -s "21 June 2009 11:01:22"
+
+*** On a system connected to a network, you'll want to use ntpdate to set the date and time:/usr/sbin/ntpdate -s time-b.nist.gov
+
+The rule for optimizing your code is to measure first. The date command can be used to time how long it takes a set of commands to execute:
+
+ - - - - - START SCRIPT - - - - -
+ #!/bin/bash
+start=$(date +%s)
+/usr/bin/sleep 5
+end=$(date +%s)
+difference=$(( end - start))
+echo Time taken to execute commands is $difference seconds.
+ - - - - - END SCRIPT - - - - -
+
+*** The date command's minimum resolution is one second. A better method for timing commands is the time command:
+# time /usr/bin/sleep 5
+
+real    0m5.001s
+user    0m0.000s
+sys     0m0.002s
+
+Date component					Format
+Weekday							%a (for example, Sat)
+								%A (for example, Saturday)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Month 							%b (for example, Nov)
+								%B (for example, November)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Day 							%d (for example, 31)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Date in format (mm/dd/yy)		%D (for example, 10/18/10)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Year 							%y (for example, 10)
+								%Y (for example, 2010)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Hour							%I or %H (For example, 08)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Minute 							%M (for example, 33)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Second 							%S (for example, 10)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Nano Second 					%N (for example, 695208515)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Epoch Unix 						%s (for example, 1290049486)
+
+Producing delays in a script
+The sleep command will delay a script's execution period of time given in seconds. 
+
+# sleep 10
+
+
+Debugging the script
+Debugging frequently takes longer than writing code. A feature every programming language should implement is to produce trace information when something unexpected happens. Debugging information can be read to understand what caused the program to behave in an unexpected fashion. 
+
+Add the -x option to enable debug tracing of a shell script.
+# /bin/bash -x sleep.sh
+
+Debug only portions of the script using set -x and set +x. Consider this example:
+ - - - - - START SCRIPT - - - - -
+#!/bin/bash
+
+for i in {1..6};
+do
+    set -x
+    echo $i
+    set +x
+done
+echo "Script executed"
+ - - - - - END SCRIPT - - - - -
+
+The aforementioned debugging methods are provided by Bash built-ins. They produce debugging information in a fixed format. In many cases, we need debugging information in our own format. We can define a _DEBUG environment variable to enable and disable debugging and generate messages in our own debugging style.
+
+ - - - - - START SCRIPT - - - - -
+#!/bin/bash
+function DEBUG()
+{
+    [ "$_DEBUG" == "on" ] && $@ || :
+}
+for i in {1..10}
+do
+  DEBUG echo "I is $i"
+done
+ - - - - - END SCRIPT - - - - -
+
+Run the preceding script with debugging set to "on":
+# _DEBUG=on ./debug.sh
+I is 1
+I is 2
+I is 3
+I is 4
+I is 5
+I is 6
+I is 7
+I is 8
+I is 9
+I is 10
+
+We prefix DEBUG before every statement where debug information is to be printed. If _DEBUG=on is not passed to the script, debug information will not be printed.
+
+The -x flag outputs every line of script as it is executed. However, we may require only some portions of the source lines to be observed. Bash uses a set builtin to enable and disable debug printing within the script:
+
+set -x: This displays arguments and commands upon their execution
+set +x: This disables debugging
+set -v: This displays input when they are read
+set +v: This disables printing input
+
+Shebang hack
+The shebang can be changed from #!/bin/bash to #!/bin/bash -xv to enable debugging without any additional flags (-xv flags themselves).
+
+
+Functions and arguments
+A function is defined with the function command, a function name, open/close parentheses, and a function body enclosed in curly brackets:
+
+function fname() 
+{ 
+    statements; 
+}
+
+Alternatively, it can be defined as:
+
+fname() 
+{ 
+    statements; 
+}
+
+It can even be defined as follows (for simple functions):
+fname() { statement; }
+
+A function is invoked using its name:
+$ fname ; # executes function
+
+Arguments passed to functions are accessed positionally, $1 is the first argument, $2 is the second, and so on:
+$ fname arg1 arg2 ; # passing args
+
+The following is the definition of the function fname. In the fname function, we have included various ways of accessing the function arguments.
+
+fname() 
+{ 
+   echo $1, $2; #Accessing arg1 and arg2 
+   echo "$@"; # Printing all arguments as list at once 
+   echo "$*"; # Similar to $@, but arguments taken as single  
+   entity 
+   return 0; # Return value 
+ }
+
+Arguments passed to scripts can be accessed as $0 (the name of the script):
+$1 is the first argument
+$2 is the second argument
+$n is the nth argument
+"$@" expands as "$1" "$2" "$3" and so on
+"$*" expands as "$1c$2c$3", where c is the first character of IFS
+"$@" is used more often than $*, since the former provides all arguments as a single string
+
+Compare alias to function
+Here's an alias to display a subset of files by piping ls output to grep. The argument is attached to the end of the command, so lsg txt is expanded to ls -ltra | grep txt:
+
+# alias lsg='ls -ltra | grep'
+# lsg txt
+-rw-r--r--   1 root root    17 Jul 20 10:23 tmp.txt
+-rw-r--r--   1 root root    47 Jul 20 11:11 stderr.txt
+-rw-r--r--   1 root root     0 Jul 25 15:11 alfa.txt
+
+function getIP:
+# function getIP() { /usr/sbin/ifconfig $1 | /usr/bin/grep 'inet '; }
+# getIP bond0
+        inet 192.168.XXX.XXX  netmask 255.255.252.0  broadcast 192.168.XXX.XXX
+
+The recursive function
+A recursive function is a function that calls itself: recursive functions must have an exit condition, or they will spawn until the system exhausts a resource and crashes.
+
+Fork bomb
+This function: 
+:(){ :|:& };:
+
+spawns processes forever and ends up in a denial-of-service attack.
+
+The & character is postfixed with the function call to bring the subprocess into the background. This dangerous code forks processes forever and is called a fork bomb.
+
+Functions can be exported, just like environment variables, using the export command.
+
+Reading the return value (status) of a command
+The return value of a command is stored in the $? variable.
+
+# sleep 1
+# echo $?
+0
+
+The return value is called exit status. This value can be used to determine whether a command completed successfully or unsuccessfully. If the command exits successfully, the exit status will be zero, otherwise it will be a nonzero value.
+
+Passing arguments to commands
+Most applications accept arguments in different formats. Suppose -p and -v are the options available, and -k N is another option that takes a number. Also, the command requires a filename as argument. This application can be executed in multiple ways:
+
+$ command -p -v -k 1 file
+$ command -pv -k 1 file
+$ command -vpk 1 file
+$ command file -pvk 1
+
+
+Sending output from one command to another
+One of the best features of the Unix shells is the ease of combining many commands to produce a report. The output of one command can appear as the input to another, which passes its output to another command, and so on. The output of this sequence can be assigned to a variable.
+
+The input is usually fed into a command through stdin or arguments. The output is sent to stdout or stderr. When we combine multiple commands, we usually supply input via stdin and generate output to stdout
+
+In this context, the commands are called filters. We connect each filter using pipes, sympolized by the piping operator (|), like this:
+
+$ cmd1 | cmd2 | cmd3
+
+Here, we combine three commands. The output of cmd1 goes to cmd2, the output of cmd2 goes to cmd3, and the final output (which comes out of cmd3) will be displayed on the monitor, or directed to a file.
+
+Assign the output of a sequence of commands to a variable:
+# cmd_output=$(ls -ltra | grep .txt | cat -n)
+# echo $cmd_output
+
+Another method, called back quotes (some people also refer to it as back tick) can also be used to store the command output:
+
+# cmd_output=`ls -ltra | grep .txt | cat -n`
+# echo $cmd_output
+
+
+Reading n characters without pressing the return key
+The bash command read inputs text from the keyboard or standard input. We can use read to acquire input from the user interactively, but read is capable of more. Most input libraries in any programming language read the input from the keyboard and terminate the string when return is pressed. There are certain situations when return cannot be pressed and string termination is done based on a number of characters received (perhaps a single character).
+
+The following statement will read n characters from input into the variable_name variable:
+
+# read -n 2 var
+ab
+# echo $var
+ab
+
+Read a password in the non-echoed mode:
+# read -s var
+
+Display a message with read using the following command:
+# read -p "Enter Input: " var
+Enter Input: Hello.
+
+Read the input after a timeout (seconds):
+# read -t 3 var
+
+Use a delimiter character to end the input line:
+# read -d "." var
+Hello
+World.
+
+
+Running a command until it succeeds
+Sometimes a command can only succeed when certain conditions are met. For example, you can only download a file after the file is created. In such cases, one might want to run a command repeatedly until it succeeds.
+
+Define a function in the following way:
+
+repeat() 
+{ 
+  while true 
+  do 
+    $@ && return 
+  done 
+}
+
+Alternatively, add this to your shell's rc (~/.bashrc) file for ease of use:
+repeat() { while true; do $@ && return; done }
+
+This repeat function has an infinite while loop, which attempts to run the command passed as a parameter (accessed by $@) to the function. It returns if the command was successful, thereby exiting the loop.
+
+A faster approach
+On most modern systems, true is implemented as a binary in /bin. This means that each time the aforementioned while loop runs, the shell has to spawn a process. To avoid this, we can use the shell built-in : command, which always returns an exit code 0:
+
+repeat() { while :; do $@ && return; done }
+
+Adding a delay
+modify the function and add a delay, as follows:
+repeat() { while :; do $@ && return; sleep 30; done }
+
+
+*** RE-DO "Field separators and iterators" ***
+
+Field separators and iterators
+The internal field separator (IFS) is an important concept in shell scripting. It is useful for manipulating text data.
+
+An IFS is a delimiter for a special purpose. It is an environment variable that stores delimiting characters. It is the default delimiter string used by a running shell environment.
+
+Consider the case where we need to iterate through words in a string or comma separated values (CSV). In the first case, we will use IFS=" " and in the second, IFS=",".
+
+data="name,gender,rollno,location" 
+To read each of the item in a variable, we can use IFS. 
+oldIFS=$IFS 
+IFS=, # IFS is now a , 
+for item in $data; 
+do 
+    echo Item: $item 
+done 
+
+IFS=$oldIFS
