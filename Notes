@@ -1,0 +1,1684 @@
+Terminal Printing
+
+https://linux.die.net/man/1/echo
+
+echo, puts a new line after every "echo" invocation by default, printf does not
+
+double quotes "" can't print special characters, i.e. a ! -or- ?
+
+# echo "Hello!"
+-bash: !": event not found
+
+# echo 'Hello!'
+Hello!
+
+variable substitution doesn't work with single quotes ''
+
+
+https://linux.die.net/man/1/printf
+
+printf takes "" text delimited by spaces, by default printf doesn't have new line by default like the echo command; it has to be specified with \n.
+
+# printf "Hello World."
+Hello World.[root@el7_blog.local]#
+
+# printf "Hello World.\n"
+Hello World.
+[root@el7_blog.local]#
+
+Colorizing
+http://tldp.org/LDP/abs/html/colorizing.html
+
+ - - - - - 
+
+Variables & Environmental Variables
+
+In BASH the type for every variable is string with or without quotes
+
+To view all the environmental variables issued to a terminal issue the # env command. 
+
+# pgrep to obtain pid(s) for running processes
+
+https://linux.die.net/man/1/pgrep
+
+# pgrep httpd
+8499
+8500
+8501
+
+obtain environment variables of PID by using
+
+# cat /proc/PID/environ
+
+# cat /proc/8499/environ
+LANG=CPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/binNOTIFY_SOCKET=/run/systemd/notify
+
+use "tr" for substitution, ex. substitute '\0' with '\n'
+
+https://linux.die.net/man/1/tr
+
+# cat /proc/8499/environ | tr '\0' '\n'
+LANG=C
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+NOTIFY_SOCKET=/run/systemd/notify
+
+set variables:
+apple_count=5
+
+IF Variable has a space use '' -or- ""
+output='Hello World!'
+
+print variables
+# echo $apple_count
+5
+
+# echo ${apple_count}
+5
+
+# echo $output
+Hello World!
+
+# echo ${output}
+Hello World!
+
+the # export command is used to set the env variable
+
+# env | grep HISTSIZE
+HISTSIZE=1000
+
+# export HISTSIZE=2500
+# env | grep HISTSIZE
+HISTSIZE=2500
+
+add new path to $PATH variable
+
+# PATH="$PATH:/root/System_Administration"
+# export PATH
+# echo $PATH
+
+finding the length of a string
+
+# length=${#var}
+# var=0123456789
+echo ${#var}
+10
+
+Identifying the current shell
+To identify the shell which is currently being used, use the SHELL environment variable.
+
+# echo $SHELL
+/bin/bash
+
+#!/bin/bash
+
+
+Checking for super user (root)
+
+if [ $UID -ne 0 ]; then
+  echo "You're NOT root, please run as root."
+else
+  echo "You're root, be careful..."
+fi
+
+Modifying the Bash prompt string
+(username@hostname:~$)
+
+The PS1 environment variable defines the primary prompt. The default prompt is defined by a line in the ~/.bashrc file
+
+\u = username
+\h = hostname
+\W = current working directory
+
+# echo $PS1
+[\u@\h \W]\$
+
+Function to prepend to environment variables
+Environment variables are often used to store a list of paths of where to search for executables, libraries, and so on. Example, $PATH
+
+add "/root/System_Administration" to $PATH variable
+
+# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+
+# export PATH="$PATH:/root/System_Administration"
+# echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/System_Administration
+
+
+Math with the shell
+The Bash shell performs basic arithmetic operations using the let, (( )), and [] commands. The expr and bc utilities are used to perform advanced operations.
+
+# no1=8
+# no2=4
+# let result=$no1+no2
+# echo $result
+12
+
+Other uses of let command are as follows:
+
+increment:
+# echo $no1
+8
+
+# let no1++
+# echo $no1
+9
+
+decrement
+# echo $no2
+4
+# let no2--
+# echo $no2
+3
+
+shorthands
+add 6 to no1
+# echo $no1
+9
+
+# let no1+=6
+# echo $no1
+15
+
+subtract 2 from no2
+# echo $no2
+3
+
+# let no2-=2
+# echo $no2
+1
+
+The [] operator is used in the same way as the let command
+# echo $no1 && echo $no2
+15
+1
+
+# result=$[ no1 + no2 ] && echo $result
+16
+
+The (( )) operator can also be used
+# result=$(( no1 + 100 )) && echo $result
+115
+
+The expr expression can be used for basic operations
+# result=`expr 3 + 4`
+# echo $result
+7
+
+# echo $no1
+15
+
+# result=$(expr $no1 + 10)
+# echo $result
+25
+
+The preceding methods do not support floating point numbers, and operate on integers only.
+
+The bc application, the precision calculator, is an advanced utility for mathematical operations. It has a wide range of options. We can perform floating point arithmetic and use advanced functions.
+
+# echo "4 * 0.56" | bc
+2.24
+
+# no=54
+# result=`echo "$no * 1.5" | bc`
+# echo $result
+81.0
+
+scale decimal places
+# echo "scale=2;22/7" | bc
+3.14
+# echo "scale=3;22/7" | bc
+3.142
+# echo "scale=4;22/7" | bc
+3.1428
+
+# echo "sqrt(100)" | bc
+10
+
+# echo "10^2" | bc
+100
+
+Playing with file descriptors and redirection
+File descriptors are integers associated with the input and output streams. The best-known file descriptors are stdin, stdout, and stderr. The contents of one stream can be redirected to another.
+
+Shell scripts frequently use standard input (stdin), standard output (stdout), and standard error (stderr). A script can redirect output to a file with the greater-than symbol. Text generated by a command may be normal output or an error message. By default, both normal output (stdout) and error messages (stderr) are sent to the display. The two streams can be separated by specifying a specific descriptor for each stream.
+
+
+File descriptors are integers associated with an opened file or data stream. File descriptors 0, 1, and 2 are reserved:
+
+0: stdin
+1: stdout
+2: stderr
+
+The redirection operators (> and >>) send output to a file instead of the terminal. The > and >> operators behave slightly differently. Both redirect output to a file, but the single greater-than symbol (>) empties the file and then writes to it, whereas the double greater-than symbol (>>) adds the output to the end of the existing file.
+
+By default, the redirection operates on standard output. To explicitly take a specific file descriptor, you must prefix the descriptor number to the operator.
+
+If you are familiar with file access in other programming languages, you may be familiar with the modes for opening files. These three modes are commonly used:
+ - Read mode
+ - Write with append mode
+ - Write with truncate mode
+
+The < operator reads from the file to stdin. The > operator writes to a file with truncation (data is written to the target file after truncating the contents). The >> operator writes to a file by appending (data is appended to the existing file contents and the contents of the target file will not be lost).
+
+Use the greater-than symbol (>) to add text to a file:
+# echo "Hello." > tmp.txt
+
+*** If tmp.txt already exists, the single greater-than sign (>) will delete any previous contents
+
+# cat tmp.txt
+Hello.
+
+Use double-greater-than (>>) to append text to a file:
+# echo 'Good Bye!' >> tmp.txt
+# cat tmp.txt
+Hello.
+Good Bye!
+
+When a command exits because of an error, it returns a nonzero exit status. The command returns zero when it terminates after successful completion. The return status is available in the special variable $? (run echo $? immediately after the command execution statement to print the exit status).
+
+# echo $?
+
+You can redirect stderr to one file and stdout to another file.
+# cmd 2>stderr.txt 1>stdout.txt
+
+It is also possible to redirect stderr and stdout to a single file by converting stderr to stdout using this preferred method:
+# cmd 2>&1 allOutput.txt
+
+This can be done even using an alternate approach:
+$ cmd &> output.txt 
+
+If you don't want to see or save any error messages, you can redirect the stderr output to /dev/null, which removes it completely.
+
+The tee command reads from stdin and redirects the input data to stdout and one or more files.
+
+In the following code, the stdin data is received by the tee command. It writes a copy of stdout to the output.txt file and sends another copy as stdin for the next commandn $ cat -n. The cat -n command puts a line number for each line received from stdin and writes it into stdout:
+
+$ cat a* | tee output.txt | cat -n
+cat: a1.txt: Permission denied
+     1  alfa2
+     2  alfa
+
+$ cat output.txt
+alfa2
+alfa
+
+*** The tee command reads only from stdin
+
+*** By default, the tee command overwrites the file. Including the -a option will force it to append the new data.
+
+To send two copies of the input to stdout, use - for the filename argument:
+
+$ echo 'Hello World!' | tee -
+Hello World!
+Hello World!
+
+Alternately, we can use /dev/stdin as the output filename to use stdin.Similarly, use /dev/stderr for standard error and /dev/stdout for standard output. These are special device files that correspond to stdin, stderr, and stdout.
+
+Redirection from a file to a command
+We can read data from a file as stdin with the less-than symbol (<):
+
+$ cat < a.txt
+alfa
+
+
+Arrays and associative arrays
+Arrays allow a script to store a collection of data as separate entities using indices (indexes). Bash supports both regular arrays that use integers as the array index, and associative arrays, which use a string as the array index. Regular arrays should be used when the data is organized numerically, for example, a set of successive iterations. Associative arrays can be used when the data is organized by a string, for example, host names.
+
+Arrays can be defined using different techniques:
+
+Define an array using a list of values in a single line:
+# array_var=(test1 test2 test3 test4)
+** Values will be stored in consecutive locations starting from index 0
+
+firstArray=(one two three four five six)
+
+Print the contents of an array at a given index using the following commands:
+# echo ${firstArray[0]}
+one
+
+Print all of the values in an array as a list, using the following commands:
+# echo ${firstArray[*]}
+one two three four five six
+
+Alternately, you can use the following command:
+# echo ${firstArray[@]}
+one two three four five six
+
+Print the length of an array (the number of elements in an array):
+# echo ${#firstArray[*]}
+6
+
+Alternately, define an array as a set of index-value pairs:
+# array_var[0]="test1"
+# array_var[1]="test2"
+# array_var[2]="test3"
+# array_var[3]="test4"
+# array_var[4]="test5"
+# array_var[5]="test6"
+
+# secondArray[0]=alfa
+# secondArray[1]=bravo
+# secondArray[3]=charlie
+# secondArray[4]=delta
+
+Print the contents of an array at a given index using the following commands:
+# echo ${secondArray[0]}
+alfa
+
+Print all of the values in an array as a list, using the following commands:
+# echo ${secondArray[*]}
+alfa bravo charlie delta
+
+Alternately, you can use the following command:
+# echo ${secondArray[@]}
+alfa bravo charlie delta
+
+Print the length of an array (the number of elements in an array):
+# echo ${#secondArray[*]}
+4
+
+associative arrays
+An associative array can use any text data as an array index. A declaration statement is required to define a variable name as an associative array.
+
+# declare -A fruit_value
+
+# fruit_value=([apple]='$1.00' [orange]='$0.50')
+
+# echo "Price Per Apple: ${fruit_value[apple]}"
+Price Per Apple: $1.00
+
+
+Listing of associative indexes (also works with standard arrays)
+# echo ${!fruit_value[*]}
+orange apple
+
+Alternatively
+# echo ${!fruit_value[@]}
+orange apple
+
+Visiting aliases
+An alias is a shortcut to replace typing a long-command sequence.
+
+Create an alias:
+$ alias new_command='command sequence'
+
+# alias yca='yum clean all'
+
+The alias command is temporary: aliases exist until we close the current terminal. To make an alias available to all shells, add this statement to the ~/.bashrc file. Commands in ~/.bashrc are always executed when a new interactive shell process is spawned
+
+# echo 'alias yca="yum clean all"' >> ~/.bashrc
+
+To remove an alias, remove its entry from ~/.bashrc (if any) or use the unalias command.
+
+*** When you create an alias, if the item being aliased already exists, it will be replaced by this newly aliased command for that user.
+
+Escaping aliases
+Given how easy it is to create an alias to masquerade as a native command, you should not run aliased commands as a privileged user. We can ignore any aliases currently defined, by escaping the command we want to run.
+
+$ \command
+
+The \ character escapes the command, running it without any aliased changes. When running privileged commands on an untrusted environment, it is always a good security practice to ignore aliases by prefixing the command with \. The attacker might have aliased the privileged command with his/her own custom command, to steal critical information that is provided by the user to the command.
+
+Listing aliases
+The alias command lists the currently defined aliases:
+
+# alias
+alias cp='cp -i'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+alias l.='ls -d .* --color=auto'
+alias ll='ls -l --color=auto'
+alias ls='ls --color=auto'
+alias mv='mv -i'
+alias rm='rm -i'
+
+Grabbing information about the terminal
+While writing command-line shell scripts, we often need to manipulate information about the current terminal, such as the number of columns, rows, cursor positions, masked password fields, and so on.
+
+The tput and stty commands are utilities used for terminal manipulations.
+
+Return the number of columns and rows in a terminal:
+# tput cols
+80
+
+# tput lines
+24
+
+Return the current terminal name:
+# tput longname
+xterm terminal emulator (X Window System)
+
+Move the cursor to a 100,100 position:
+# tput cup 100 100
+
+Set the terminal background color:
+# tput setb 1
+
+*** The value of n can be a value in the range of 0 to 7
+
+Set the terminal foreground color:
+# tput setf 1
+
+*** The value of n can be a value in the range of 0 to 7
+
+*** Some commands including the common color ls may reset the foreground and background color, example # ls --color=auto
+
+Make text bold, using this command:
+# tput bold
+
+Perform start and end underlining:
+# tput smul
+# tput rmul
+
+To delete from the cursor to the end of the line, use the following command:
+# tput ed
+
+A script should not display the characters while entering a password. The following example demonstrates disabling character echo with the stty command:
+
+ - - - - - START SCRIPT - - - - - 
+#!/bin/sh
+#Filename: password.sh
+
+echo -e "Enter password: "
+
+# disable echo before reading password
+stty -echo
+
+read password
+# re-enable echo
+
+stty echo
+echo
+echo Password read.
+ - - - - - END SCRIPT - - - - - 
+
+Getting and setting dates and delays
+A time delay is used to wait a set amount of time(such as 1 second) during the program execution, or to monitor a task every few seconds (or every few months). Working with times and dates requires an understanding of how time and date are represented and manipulated. 
+
+Dates can be printed in a variety of formats. Internally, dates are stored as an integer number of seconds since 00:00:00 1970-01-01. This is called epoch or Unix time.
+
+Read the date:
+# date
+Tue Jul 25 15:52:36 EDT 2017
+
+Print the epoch time:
+# date +%s
+1501012376
+
+Convert the date string into epoch:
+# date --date "09/09/1986" +%s
+526622400
+
+# date --date "Tue Sep  9 00:00:00 EDT 1986" +%s
+526622400
+
+The --date option defines a date string as input. We can use any date formatting options to print the output.
+
+# date --date "Jan 20 2001" +%A
+Saturday
+
+Use a combination of format strings prefixed with + as an argument for the date command, to print the date in the format of your choice.
+
+# date "+%Y.%m.%d"
+2017.07.25
+
+Set the date and time:
+# date -s "Formatted date string"
+# date -s "21 June 2009 11:01:22"
+
+*** On a system connected to a network, you'll want to use ntpdate to set the date and time:/usr/sbin/ntpdate -s time-b.nist.gov
+
+The rule for optimizing your code is to measure first. The date command can be used to time how long it takes a set of commands to execute:
+
+ - - - - - START SCRIPT - - - - -
+ #!/bin/bash
+start=$(date +%s)
+/usr/bin/sleep 5
+end=$(date +%s)
+difference=$(( end - start))
+echo Time taken to execute commands is $difference seconds.
+ - - - - - END SCRIPT - - - - -
+
+*** The date command's minimum resolution is one second. A better method for timing commands is the time command:
+# time /usr/bin/sleep 5
+
+real    0m5.001s
+user    0m0.000s
+sys     0m0.002s
+
+Date component					Format
+Weekday							%a (for example, Sat)
+								%A (for example, Saturday)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Month 							%b (for example, Nov)
+								%B (for example, November)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Day 							%d (for example, 31)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Date in format (mm/dd/yy)		%D (for example, 10/18/10)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Year 							%y (for example, 10)
+								%Y (for example, 2010)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Hour							%I or %H (For example, 08)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Minute 							%M (for example, 33)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Second 							%S (for example, 10)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Nano Second 					%N (for example, 695208515)
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+Epoch Unix 						%s (for example, 1290049486)
+
+Producing delays in a script
+The sleep command will delay a script's execution period of time given in seconds. 
+
+# sleep 10
+
+
+Debugging the script
+Debugging frequently takes longer than writing code. A feature every programming language should implement is to produce trace information when something unexpected happens. Debugging information can be read to understand what caused the program to behave in an unexpected fashion. 
+
+Add the -x option to enable debug tracing of a shell script.
+# /bin/bash -x sleep.sh
+
+Debug only portions of the script using set -x and set +x. Consider this example:
+ - - - - - START SCRIPT - - - - -
+#!/bin/bash
+
+for i in {1..6};
+do
+    set -x
+    echo $i
+    set +x
+done
+echo "Script executed"
+ - - - - - END SCRIPT - - - - -
+
+The aforementioned debugging methods are provided by Bash built-ins. They produce debugging information in a fixed format. In many cases, we need debugging information in our own format. We can define a _DEBUG environment variable to enable and disable debugging and generate messages in our own debugging style.
+
+ - - - - - START SCRIPT - - - - -
+#!/bin/bash
+function DEBUG()
+{
+    [ "$_DEBUG" == "on" ] && $@ || :
+}
+for i in {1..10}
+do
+  DEBUG echo "I is $i"
+done
+ - - - - - END SCRIPT - - - - -
+
+Run the preceding script with debugging set to "on":
+# _DEBUG=on ./debug.sh
+I is 1
+I is 2
+I is 3
+I is 4
+I is 5
+I is 6
+I is 7
+I is 8
+I is 9
+I is 10
+
+We prefix DEBUG before every statement where debug information is to be printed. If _DEBUG=on is not passed to the script, debug information will not be printed.
+
+The -x flag outputs every line of script as it is executed. However, we may require only some portions of the source lines to be observed. Bash uses a set builtin to enable and disable debug printing within the script:
+
+set -x: This displays arguments and commands upon their execution
+set +x: This disables debugging
+set -v: This displays input when they are read
+set +v: This disables printing input
+
+Shebang hack
+The shebang can be changed from #!/bin/bash to #!/bin/bash -xv to enable debugging without any additional flags (-xv flags themselves).
+
+
+Functions and arguments
+A function is defined with the function command, a function name, open/close parentheses, and a function body enclosed in curly brackets:
+
+function fname() 
+{ 
+    statements; 
+}
+
+Alternatively, it can be defined as:
+
+fname() 
+{ 
+    statements; 
+}
+
+It can even be defined as follows (for simple functions):
+fname() { statement; }
+
+A function is invoked using its name:
+$ fname ; # executes function
+
+Arguments passed to functions are accessed positionally, $1 is the first argument, $2 is the second, and so on:
+$ fname arg1 arg2 ; # passing args
+
+The following is the definition of the function fname. In the fname function, we have included various ways of accessing the function arguments.
+
+fname() 
+{ 
+   echo $1, $2; #Accessing arg1 and arg2 
+   echo "$@"; # Printing all arguments as list at once 
+   echo "$*"; # Similar to $@, but arguments taken as single  
+   entity 
+   return 0; # Return value 
+ }
+
+Arguments passed to scripts can be accessed as $0 (the name of the script):
+$1 is the first argument
+$2 is the second argument
+$n is the nth argument
+"$@" expands as "$1" "$2" "$3" and so on
+"$*" expands as "$1c$2c$3", where c is the first character of IFS
+"$@" is used more often than $*, since the former provides all arguments as a single string
+
+Compare alias to function
+Here's an alias to display a subset of files by piping ls output to grep. The argument is attached to the end of the command, so lsg txt is expanded to ls -ltra | grep txt:
+
+# alias lsg='ls -ltra | grep'
+# lsg txt
+-rw-r--r--   1 root root    17 Jul 20 10:23 tmp.txt
+-rw-r--r--   1 root root    47 Jul 20 11:11 stderr.txt
+-rw-r--r--   1 root root     0 Jul 25 15:11 alfa.txt
+
+function getIP:
+# function getIP() { /usr/sbin/ifconfig $1 | /usr/bin/grep 'inet '; }
+# getIP bond0
+        inet 192.168.XXX.XXX  netmask 255.255.252.0  broadcast 192.168.XXX.XXX
+
+The recursive function
+A recursive function is a function that calls itself: recursive functions must have an exit condition, or they will spawn until the system exhausts a resource and crashes.
+
+Fork bomb
+This function: 
+:(){ :|:& };:
+
+spawns processes forever and ends up in a denial-of-service attack.
+
+The & character is postfixed with the function call to bring the subprocess into the background. This dangerous code forks processes forever and is called a fork bomb.
+
+Functions can be exported, just like environment variables, using the export command.
+
+Reading the return value (status) of a command
+The return value of a command is stored in the $? variable.
+
+# sleep 1
+# echo $?
+0
+
+The return value is called exit status. This value can be used to determine whether a command completed successfully or unsuccessfully. If the command exits successfully, the exit status will be zero, otherwise it will be a nonzero value.
+
+Passing arguments to commands
+Most applications accept arguments in different formats. Suppose -p and -v are the options available, and -k N is another option that takes a number. Also, the command requires a filename as argument. This application can be executed in multiple ways:
+
+$ command -p -v -k 1 file
+$ command -pv -k 1 file
+$ command -vpk 1 file
+$ command file -pvk 1
+
+
+Sending output from one command to another
+One of the best features of the Unix shells is the ease of combining many commands to produce a report. The output of one command can appear as the input to another, which passes its output to another command, and so on. The output of this sequence can be assigned to a variable.
+
+The input is usually fed into a command through stdin or arguments. The output is sent to stdout or stderr. When we combine multiple commands, we usually supply input via stdin and generate output to stdout
+
+In this context, the commands are called filters. We connect each filter using pipes, sympolized by the piping operator (|), like this:
+
+$ cmd1 | cmd2 | cmd3
+
+Here, we combine three commands. The output of cmd1 goes to cmd2, the output of cmd2 goes to cmd3, and the final output (which comes out of cmd3) will be displayed on the monitor, or directed to a file.
+
+Assign the output of a sequence of commands to a variable:
+# cmd_output=$(ls -ltra | grep .txt | cat -n)
+# echo $cmd_output
+
+Another method, called back quotes (some people also refer to it as back tick) can also be used to store the command output:
+
+# cmd_output=`ls -ltra | grep .txt | cat -n`
+# echo $cmd_output
+
+
+Reading n characters without pressing the return key
+The bash command read inputs text from the keyboard or standard input. We can use read to acquire input from the user interactively, but read is capable of more. Most input libraries in any programming language read the input from the keyboard and terminate the string when return is pressed. There are certain situations when return cannot be pressed and string termination is done based on a number of characters received (perhaps a single character).
+
+The following statement will read n characters from input into the variable_name variable:
+
+# read -n 2 var
+ab
+# echo $var
+ab
+
+Read a password in the non-echoed mode:
+# read -s var
+
+Display a message with read using the following command:
+# read -p "Enter Input: " var
+Enter Input: Hello.
+
+Read the input after a timeout (seconds):
+# read -t 3 var
+
+Use a delimiter character to end the input line:
+# read -d "." var
+Hello
+World.
+
+
+Running a command until it succeeds
+Sometimes a command can only succeed when certain conditions are met. For example, you can only download a file after the file is created. In such cases, one might want to run a command repeatedly until it succeeds.
+
+Define a function in the following way:
+
+repeat() 
+{ 
+  while true 
+  do 
+    $@ && return 
+  done 
+}
+
+Alternatively, add this to your shell's rc (~/.bashrc) file for ease of use:
+repeat() { while true; do $@ && return; done }
+
+This repeat function has an infinite while loop, which attempts to run the command passed as a parameter (accessed by $@) to the function. It returns if the command was successful, thereby exiting the loop.
+
+A faster approach
+On most modern systems, true is implemented as a binary in /bin. This means that each time the aforementioned while loop runs, the shell has to spawn a process. To avoid this, we can use the shell built-in : command, which always returns an exit code 0:
+
+repeat() { while :; do $@ && return; done }
+
+Adding a delay
+modify the function and add a delay, as follows:
+repeat() { while :; do $@ && return; sleep 30; done }
+
+
+Field separators and iterators
+The internal field separator (IFS) is an important concept in shell scripting. It is useful for manipulating text data.
+
+An IFS is a delimiter for a special purpose. It is an environment variable that stores delimiting characters. It is the default delimiter string used by a running shell environment.
+
+Consider the case where we need to iterate through words in a string or comma separated values (CSV). In the first case, we will use IFS=" " and in the second, IFS=",".
+
+The default value of IFS is a white-space
+
+ - - - - - 
+
+data="name,gender,rollno,location" 
+#To read each of the item in a variable, we can use IFS. 
+oldIFS=$IFS 
+IFS=, # IFS is now a , 
+for item in $data; 
+do 
+    echo Item: $item 
+done 
+
+IFS=$oldIFS
+
+ - - - - - 
+
+When IFS is set as , the shell interprets the comma as a delimiter character, therefore, the $item variable takes substrings separated by a comma as its value during the iteration.
+
+ - - - - - 
+
+line="root:x:0:0:root:/root:/bin/bash"
+oldIFS=$IFS;
+IFS=":"
+count=0
+for item in $line;
+do
+
+     [ $count -eq 0 ]  && user=$item;
+     [ $count -eq 6 ]  && shell=$item;
+    let count++
+done;
+IFS=$oldIFS
+echo " User: " $user
+echo "Shell: " $shell
+
+ - - - - - 
+
+Loops are very useful in iterating through a sequence of values. Bash provides many types of loops.
+
+ - - - - -
+
+line="root:x:0:0:root:/root:/bin/bash"
+oldIFS=$IFS;
+IFS=":"
+
+for item in $line;
+do
+echo $item
+done
+
+ - - - - - 
+
+Generate a List of Numbers From 1 to 50
+# /bin/echo {1..50}
+
+Generate a List of Lower Case Letters
+# /bin/echo {a..z}
+
+Generate a List of Upper Case Letters
+# /bin/echo {A..Z}
+
+http://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO-7.html
+
+Iterate Through a Range of Numbers:
+
+ - - - - - 
+
+for ((i=0;i<10;i++))
+{
+/bin/echo $i
+}
+
+ - - - - - 
+
+Loop Until a Condition is Met:
+
+ - - - - - 
+
+COUNTER=0
+while [  $COUNTER -lt 10 ]; do
+    echo The counter is $COUNTER
+    let COUNTER=COUNTER+1 
+done
+
+ - - - - - 
+
+A special loop called until is available with Bash. This executes the loop until the given condition becomes true
+
+ - - - - - 
+
+x=0; 
+until [ $x -eq 9 ]; # [ $x -eq 9 ] is the condition 
+do 
+    let x++; echo $x; 
+done
+
+ - - - - -
+
+Comparisons and Tests
+Flow control in a program is handled by comparison and test statements. We can us if, if else, and logical operators to perform tests and comparison operators to compare data items.
+
+IF
+
+if condition; 
+then 
+    commands; 
+fi
+
+
+ELSE IF & ELSE
+
+if condition;  
+then 
+    commands; 
+else if condition; then 
+    commands; 
+else 
+    commands; 
+fi
+
+* Note: Nesting is possible with if and else. The if conditions can be lengthy; to make them shorter we can use logical operators: 
+	
+	[ condition ] && action; # action executes if the condition is true
+	[ condition ] || action; # action executes if the condition is false
+
+&& is the logical AND operation and || is the logical OR operation.
+
+Performing Mathematical Comparisons
+* Note: Performing mathematical comparisons: usually, conditions are enclosed in [] square brackets. There is a space between [ or ] and operands.
+
+[$var -eq 0 ] or [ $var -eq 0]
+
+Perform Mathematical Tests on Variables and Values:
+
+[ $var -eq 0 ] # It returns true when $var equal to 0. 
+[ $var -ne 0 ] # It returns true when $var is not equal to 0
+
+Important Operators:
+-gt: Greater Than
+-lt: Less Than
+-ge: Greater Than -or- Equal To
+-le: Less Than -or- Equal To
+
+Filesystem-Related Tests
+Test Different Filesystem-Related Attributes Using Different Condition Flags:
+[ -f $file_var ]: This returns true if the given variable holds a regular file path or filename
+[ -x $var ]: This returns true if the given variable holds a file path or filename that is executable
+[ -d $var ]: This returns true if the given variable holds a directory path or directory name
+[ -e $var ]: This returns true if the given variable holds an existing file
+[ -c $var ]: This returns true if the given variable holds the path of a character device file
+[ -b $var ]: This returns true if the given variable holds the path of a block device file
+[ -w $var ]: This returns true if the given variable holds the path of a file that is writable
+[ -r $var ]: This returns true if the given variable holds the path of a file that is readable
+[ -L $var ]: This returns true if the given variable holds the path of a symbolic link
+
+http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html
+
+
+String Comparisons
+When using string comparison, it is best to use double square brackets
+
+[[ $str1 = $str2 ]]: This returns true when str1 equals str2, that is, the text contents of str1 and str2 are the same
+
+[[ $str1 == $str2 ]]: It is an alternative method for string equality check
+
+[[ $str1 != $str2 ]]: This returns true when str1 and str2 mismatch
+
+*Note: Strings are compared alphabetically by comparing the ASCII value of the characters. For example, "A" is 0x41 and "a" is 0x61. Thus "A" is less than "a", and "AAa" is less than "Aaa".
+
+*Note: A space is required before and after =; if it is not provided, it is not a comparison, but it becomes an assignment statement.
+
+[[ -z $str1 ]]: This returns true if str1 holds an empty string
+[[ -n $str1 ]]: This returns true if str1 holds a nonempty string
+
+
+if [[ -n $str1 ]] && [[ -z $str2 ]] ;
+   then
+       commands;
+   fi
+
+ - - - - - 
+
+str1="Not empty "
+str2=""
+if [[ -n $str1 ]] && [[ -z $str2 ]];
+then
+    echo str1 is nonempty and str2 is empty string.
+fi
+
+output: str1 is nonempty and str2 is empty string.
+
+ - - - - - 
+
+Customizing Bash W/Configuration Files
+Most commands you type on the command line can be placed in a special file, to be evaluated when you log in or start a new bash session. It's common to customize your shell by putting function definitions, aliases, and environment variable settings in one of these files.
+
+Linux has several files that might hold customization scripts. These configuration files are divided into three camps; those sourced on login, those evaluated when an interactive shell is invoked, and files evaluated whenever a shell is invoked to process a script file.
+
+These files are evaluated when a user logs into a shell:
+/etc/profile
+$HOME/.profile
+$HOME/.bash_login
+$HOME/.bash_profile
+
+* Note:
+/etc/profile, $HOME/.profile and $HOME/.bash_profile may not be sourced if you log in via a graphical login manager. That's because the graphical window manager doesn't start a shell. When you open a terminal window, a shell is created, but it's not a login shell.
+
+* Note: If a .bash_profile or .bash_login file is present, a .profile file will not be read.
+
+
+reload .bashrc -or- .bash_profile W/O logging out & in
+
+source ~/.bashrc
+
+ -or-
+
+. ~/.bashrc
+
+ - - - - - 
+
+Concatenating W/cat
+The cat command displays or concatenates the contents of a file, but cat is capable of more. For example, cat can combine standard input data with data from a file.
+
+The cat command is a simple and frequently used command and it stands for conCATenate.
+
+The general syntax of cat for reading contents is as follows:
+$ cat file1 file2 file3 ...
+
+This command concatenates data from the files specified as command-line arguments and sends that data to stdout.
+
+$ cat file.txt
+        This is a line inside file.txt
+        This is the second line inside file.txt
+
+To print contents of more than one file, execute the following command:
+$ cat one.txt two.txt 
+        This line is from one.txt
+        This line is from two.txt
+
+The cat command not only reads from files and concatenates the data but also reads from the standard input.
+
+The pipe operator redirects data to the cat command's standard input as follows:
+OUTPUT_FROM_SOME COMMANDS | cat
+
+The cat command can also concatenate content from files with input from a terminal.
+
+Combine stdin and data from another file, like this:
+$ echo 'Text through stdin' | cat - file.txt
+
+The cat command has many other options for viewing files.
+Getting Rid of Extra Blank Lines
+Some text files contain two or more blank lines together. If you need to remove the extra blank lines, use the following syntax:
+
+$ cat -s file
+
+Displaying tabs as ^I
+It's hard to distinguish tabs and repeated space characters. Languages such as Python may treat tabs and spaces differently. Mixtures of tabs and spaces may look similar in an editor, but appear as different indentations to the interpreter. It is difficult to identify the difference between tabs and spaces when viewing a file in a text editor. cat can also identify tabs.
+
+Example:
+
+$ cat file.py 
+def function(): 
+    var = 5 
+        next = 6 
+    third = 7 
+
+$ cat -T file.py 
+def function():
+^Ivar = 5
+^I^Inext = 6
+^Ithird = 7^I
+
+Line Numbers
+The cat command's -n flag prefixes a line number to each line.
+
+$ cat -n var_if.sh
+     1  #!/bin/bash
+     2
+     3  #read var
+     4  #/bin/echo ""
+     5  #/bin/echo $var
+
+* Note: The -n option generates line numbers for all lines, including blank lines. If you want to skip numbering blank lines, use the -b option.
+
+* Note: The cat command never changes a file. It sends output to stdout after modifying the input according to the options. Do not attempt to use redirection to overwrite your input file. The shell creates the new output file before it opens the input file. The cat command will not let you use the same file as input and redirected output. Trying to trick cat with a pipe and redirecting the output will empty the input file.
+
+$ cat var_if2nd.sh > var_if2nd.sh
+cat: var_if2nd.sh: input file is output file
+
+$ ls var_if2nd.sh
+-rwxr-xr-x 1 root root 213 Oct  2 13:14 var_if2nd.sh
+                        ^
+                        | _--- 213 bytes
+
+$ cat var_if2nd.sh | cat > var_if2nd.sh
+$ ls var_if2nd.sh
+-rwxr-xr-x 1 root root 0 Oct  2 13:15 var_if2nd.sh
+                       ^
+                       |_--- 0 bytes
+
+ - - - - - 
+
+Recording and Playing Back Terminal Sessions
+Recording a screen session as a video is useful, but a video is an overkill for debugging terminal sessions or providing a shell tutorial.
+
+The shell provides another option. The script command records your keystrokes and the timing of keystrokes as you type, and saves your input and the resulting output in a pair of files. The scriptreplay command will replay the session.
+
+The script command accepts a filename as an argument. This file will hold the keystrokes and the command results. When you use the -t option, the script command sends timing data to stdout. The timing data can be redirected to a file, which records the timing info for each keystroke and output.
+
+-a Append the output to file
+-t Output timing data to standard error
+
+# script -t 2> timingData.log -a sessionOutput.txt
+Script started, file is sessionOutput.txt
+
+# scriptreplay timingData.log sessionOutput.txt
+
+ - - - - - 
+
+Finding Files and File Listing
+The find command uses the following strategy:  find descends through a hierarchy of files, matches files that meet the specified criteria, and performs some actions. The default action is to print the names of files and folders, which can be specified with the -print option.
+
+To list all the files and folders descending from a given directory
+$ find base_path
+
+# find /var/log/
+
+-or-
+
+# find /var/log/ -print
+
+*Note: The . specifies the current directory and .. specifies the parent directory. This convention is followed throughout the Unix filesystem.
+
+The print option separates each file or folder name with a \n (newline). The -print0 option separates each name with a null character '\0'. The main use for -print0 is to pass filenames containing newlines or whitespace characters to the xargs command.
+
+Example, xargs filename with space ("\n" vs "\0":
+# echo "Testing" > "echo output.txt"
+# find . -type f -print | xargs ls -l
+ls: cannot access ./echo: No such file or directory
+ls: cannot access output.txt: No such file or directory
+
+# find . -type f -print0 | xargs -0 ls -l
+-rw-r--r-- 1 root root 8 Oct  4 11:02 ./echo output.txt
+
+
+The find command can select files based on glob or regular expression rules, depth in the filesystem tree, date, type of file, and more.
+
+Search Based on Name or Regular Expression Match
+The -name argument specifies a selection pattern for the name. The -name argument accepts both glob-style wildcards and regular expressions. In the following example, '*.txt' matches all the file or folder names ending with .txt and prints them.
+
+*Note: the single quotes around *.txt. The shell will expand glob wildcards with no quotes or using double-quotes ("). The single quotes prevent the shell from expanding the *.txt and passes that string to the find command.
+
+# find . -name '*.txt' -print
+./a-output.txt
+./b-output.txt
+./c-output.txt
+
+The find command has an option -iname (ignore case), which is similar to -name, but it matches filenames regardless of case.
+
+# find . -name "a*" -print
+./a-output.log
+
+# find . -iname "a*" -print
+./A-output.log
+./a-output.log
+
+The find command supports logical operations with the selection options. The   -a and -and options perform a logical AND, while the -o and -or option perform a logical OR.
+
+$ find . \( -name '*.txt' -o -name '*.pdf' \) -print
+\( and \) are used to treat -name "*.txt" -o -name "*.pdf" as a single unit.
+
+OR Example:
+# find \( -name 'a*.txt' -or -name 'a*.log' \) -print
+./a-output.txt
+./a-output.log
+
+AND Example:
+# find . \( -name '*s*' -and -name '*e*' -and -name '*t*' \)
+./some_output.txt
+
+The -path argument restricts the match to files that match a path as well as a name.
+
+# find /home/tmp/ -path '*logrotate*' -name '*.conf'
+/home/tmp/logrotate.d/D_output.conf
+/home/tmp/logrotate.d/A_output.conf
+/home/tmp/logrotate.d/C_output.conf
+/home/tmp/logrotate.d/B_output.conf
+/home/tmp/logrotate.d/E_output.conf
+
+*Note: The -regex argument is similar to -path, but -regex matches the file paths based on regular expressions. Regular expressions are more complex than glob wildcards and support more precise pattern matching.
+
+# find . -regex '.*\(\.py\|\.sh\)$' | sort
+./bash1.sh
+./bash2.sh
+./bash3.sh
+./bash4.sh
+./bash5.sh
+./python1.py
+./python2.py
+./python3.py
+./python4.py
+./python5.py
+
+The -iregex option ignores the case for regular expression matches.
+
+# find . -iregex '.*\(\.py\|\.sh\)$' | sort
+./bash1.sh
+./bash1.SH
+./bash2.sh
+./bash2.SH
+./bash3.sh
+./bash3.SH
+./bash4.sh
+./bash4.SH
+./bash5.sh
+./bash5.SH
+ . . . . . 
+  . . . .
+   . . .
+    . . 
+     .
+
+Negating Arguments
+The find command can also exclude things that match a pattern using !
+
+# find . ! -name "*.pdf" -print
+
+Searching Based on the Directory Depth
+The find command walks through all the subdirectories until it reaches the bottom of each subdirectory tree. By default, the find command will not follow symbolic links. The -L option will force it to follow symbolic links. If a link references a link that points to the original, find will be stuck in a loop.
+
+The -maxdepth and -mindepth parameters restrict how far the find command will traverse. This will break the find command from an otherwise infinite search.
+
+The -mindepth option is similar to -maxdepth, but it sets the minimum depth for which find will report matches. It can be used to find and print files that are located with a minimum level of depth from the base path.
+
+# find . -maxdepth 1 -name "file*"
+# find . -maxdepth 2 -name "file*"
+./dir1/file3.txt
+./dir1/file1.txt
+./dir1/file2.txt
+
+# find . -maxdepth 3 -name "file*"
+./dir1/file3.txt
+./dir1/file1.txt
+./dir1/file2.txt
+
+# find . -maxdepth 4 -name "file*"
+./dir1/file3.txt
+./dir1/file1.txt
+./dir1/dir2/dir3/file5.txt
+./dir1/dir2/dir3/file6.txt
+./dir1/dir2/dir3/file4.txt
+
+*Note: The -maxdepth and -mindepth option should be early in the find command. If they are specified as later arguments, it may affect the efficiency of find as it has to do unnecessary checks. For example, if -maxdepth is specified after a -type argument, the find command will first find the files having the specified -type and then filter out the files that don't match the proper depth. However, if the depth was specified before the -type, find will collect the files having the specified depth and then check for the file type, which is the most efficient way to search.
+
+
+Searching Based on File Type
+Unix-like operating systems treat every object as a file. There are different kinds of file, such as regular files, directory, character devices, block devices, symlinks, hardlinks, sockets...
+
+The find command filters the file search with the -type option. Using -type, we can tell the find command to match only files of a specified type.
+
+List only directories including descendants:
+# find . -type d -print
+.
+./dir1
+./dir1/dir2
+./dir1/dir2/dir3
+./logrotate.d
+
+
+It is hard to list directories and files separately. But find helps to do it. List only regular files as follows:
+# find . -type f -print
+./dir1/file3.txt
+./dir1/file1.txt
+./dir1/dir2/dir3/file5.txt
+./dir1/dir2/dir3/file6.txt
+./dir1/dir2/dir3/file4.txt
+./dir1/file2.txt
+
+
+List only symbolic links as follows:
+# find . -type l -print
+
+
+The following table shows the types and arguments find recognizes:
+ f 	regular file
+ l 	symbolic link
+ d 	directory
+ c 	character special device
+ b 	block device
+ s 	socket
+ p 	fifo
+
+Searching by File Timestamp
+Unix/Linux filesystems have three types of timestamp on each file. They are as follows:
+
+Access time (-atime): The timestamp when the file was last accessed
+Modification time (-mtime): The timestamp when the file was last modified
+Change time (-ctime): The timestamp when the metadata for a file (such as permissions or ownership) was last modified
+
+*Note: Unix does not store file creation time by default; however, some filesystems (ufs2, ext4, zfs, btrfs, jfs) save the creation time. The creation time can be accessed with the stat command. Given that some applications modify a file by creating a new file and then deleting the original, the creation date may not be accurate.The -atime, -mtime, and -ctime option are the time parameter options available with find. They can be specified with integer values in number of days. The number may be prefixed with - or + signs. The - sign implies less than, whereas the + sign implies greater than.
+
+Print files that were accessed within the last seven days:
+# find . -type f -atime -7 -print
+
+Print files that have an access time exactly seven days old:
+# find . -type f -atime -7 -print
+
+Print files that have an access time older than seven days:
+# find . -type f -atime +7 -print
+
+The -mtime parameter will search for files based on the modification time; -ctime searches based on the change time.
+
+The -atime, -mtime, and -ctime use time measured in days. The find command also supports options that measure in minutes. These are as follows:
+-amin (access time)
+-mmin (modification time)
+-cmin (change time)
+
+To print all the files that have an access time older than seven minutes, use the following command:
+# find . -type f -amin +7 -print
+
+The -newer option specifies a reference file with a modification time that will be used to select files modified more recently than the reference file.
+
+Find all the files that were modified more recently than file.txt file:
+# find . -type f -newer file.txt -print
+
+*Note: The find command's timestamp flags are useful for writing backup and maintenance scripts.
+
+Searching Based on File Size
+Based on the file sizes of the files, a search can be performed:
+
+# Files having size greater than 2 kilobytes
+$ find . -type f -size +2k
+
+# Files having size less than 2 kilobytes
+$ find . -type f -size -2k
+
+# Files having size 2 kilobytes
+$ find . -type f -size 2k
+
+different size units:
+ b 	512 byte blocks
+ c 	bytes
+ w 	two-byte words
+ k 	kilobytes (1,024 bytes)
+ M 	megabytes (1,024 kilobytes)
+ G 	gigabytes (1,024 megabytes)
+
+Matching Based on File Permissions and Ownership
+It is possible to match files based on the file permissions. 
+
+The -perm option specifies that find should only match files with their permission set to a particular value. 
+
+list out the files with specified file permissions:
+# find . -type f -perm 777 -print | xargs ls -l
+-rwxrwxrwx 1 root root 0 Oct  4 11:52 ./python1.py
+-rwxrwxrwx 1 root root 0 Oct  4 11:52 ./python2.py
+
+find .php files
+# find . -type f -name '*.php' | xargs ls -l
+-rwxr-xr-x 1 root root 0 Oct  4 16:55 ./file1.php
+-rwxr-xr-x 1 root root 0 Oct  4 16:55 ./file2.php
+-rwxr-xr-x 1 root root 0 Oct  4 16:55 ./file3.php
+-rwxr-xr-x 1 root root 0 Oct  4 16:55 ./file4.php
+-rwxr-xr-x 1 root root 0 Oct  4 16:55 ./file5.php
+-rwxrwxrwx 1 root root 0 Oct  4 16:55 ./index.php
+
+find .php files NOT 755
+# find . -type f -name '*.php' ! -perm 755 | xargs ls -l
+-rwxrwxrwx 1 root root 0 Oct  4 16:55 ./index.php
+
+
+We can also search files based on ownership. The files owned by a specific user can be found with the -user USER option.
+
+The USER argument can be a username or UID.
+
+# find . -type f -name '*.php' -user root
+
+Performing Actions on Files W/Find
+The find command can perform actions on the files it identifies. You can delete files, or execute an arbitrary Linux command on the files.
+
+The find command's -delete flag removes files that are matched instead of displaying them.
+
+delete all .php files
+# find . -type f -name "*.php" -delete
+
+
+Executing a Command
+The find command can be coupled with many of the other commands using the -exec option.
+
+*Note: You must run the find command as root if you want to change the ownership of files or directories.
+
+change all .php files to 755
+# find . -type f -name "*.php" | xargs ls -l
+-rw-r--r-- 1 root root 0 Oct  5 10:06 ./file1.php
+-rw-r--r-- 1 root root 0 Oct  5 10:06 ./file2.php
+-rw-r--r-- 1 root root 0 Oct  5 10:06 ./file3.php
+-rw-r--r-- 1 root root 0 Oct  5 10:06 ./file4.php
+-rw-r--r-- 1 root root 0 Oct  5 10:06 ./file5.php
+-rw-r--r-- 1 root root 0 Oct  5 10:06 ./index.php
+
+# find . -type f -name "*.php" -exec chmod 755 {} \;
+# find . -type f -name "*.php" | xargs ls -l
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file1.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file2.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file3.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file4.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file5.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./index.php
+
+change all .php file ownership apache:apache
+# find . -type f -name "*.php" -exec chown apache:apache {} \;
+# find . -type f -name "*.php" | xargs ls -l
+-rwxr-xr-x 1 apache apache 0 Oct  5 10:06 ./file1.php
+-rwxr-xr-x 1 apache apache 0 Oct  5 10:06 ./file2.php
+-rwxr-xr-x 1 apache apache 0 Oct  5 10:06 ./file3.php
+-rwxr-xr-x 1 apache apache 0 Oct  5 10:06 ./file4.php
+-rwxr-xr-x 1 apache apache 0 Oct  5 10:06 ./file5.php
+-rwxr-xr-x 1 apache apache 0 Oct  5 10:06 ./index.php
+
+*Note: Note that the command is terminated with \;. The semicolon must be escaped or it will be grabbed by your command shell as the end of the find command instead of the end of the chown command.
+
+Invoking a command for each file is a lot of overhead. If the command accepts multiple arguments (as chown does) you can terminate the command with a plus (+) instead of a semicolon. The plus causes find to make a list of all the files that match the search parameter and execute the application once with all the files on a single command line.
+
+# find . -type f -name "*.php" -exec chown root:root {} +
+# find . -type f -name "*.php" | xargs ls -l
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file1.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file2.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file3.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file4.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./file5.php
+-rwxr-xr-x 1 root root 0 Oct  5 10:06 ./index.php
+
+Another usage example is to concatenate all the .sh program files in a given directory and write them to a single file. 
+
+Each of these examples will perform this action:
+
+# find . -type f -name "*.sh" -exec cat {} \; > sh_output.txt
+# find . -type f -name "*.sh" -exec cat {} > sh_output.txt \;
+# find . -type f -name "*.sh" -exec cat {} > sh_output.txt +
+
+copy all the .txt files that are older than 10 days to a directory OLD:
+$ find . -type f -mtime +10 -name "*.txt" -exec cp {} OLD  \;
+
+
+*Note: We cannot use multiple commands along with the -exec parameter. It accepts only a single command, but we can use a trick. Write multiple commands in a shell script (for example, commands.sh) and use it with -exec as follows:
+
+-exec ./commands.sh {} \;
+
+The -exec parameter can be coupled with printf to produce joutput.
+# find . -type f -name "*.sh" -exec printf "Shell Script: %s\n" {} \; | sort
+Shell Script: ./script1.sh
+Shell Script: ./script2.sh
+Shell Script: ./script3.sh
+Shell Script: ./script4.sh
+Shell Script: ./script5.sh
+
+
+Skipping Specified Directories When Using the Find Command
+Skipping certain subdirectories may improve performance during the operation of find. The technique of excluding files and directories is known as pruning. The following example shows how to use the -prune option to exclude files that match a pattern.
+
+# find . -type d
+.
+./sh_1
+./sh_1/sh_3
+./dir1
+./dir4
+./dir2
+./dir5
+./dir3
+./sh_2
+./sh_2/sh_4
+
+
+prune sh_* directories:
+# find . -name "sh*" -prune -o -type d -print
+.
+./dir1
+./dir4
+./dir2
+./dir5
+./dir3
+
+
+prune dir* directories:
+# find . -name "dir*" -prune -o -type d -print
+.
+./sh_1
+./sh_1/sh_3
+./sh_2
+./sh_2/sh_4
+
+
+prune dir* directories W/-maxdepth:
+# find . -maxdepth 1 -name "dir*" -prune -o -type d -print
+.
+./sh_1
+./sh_2
+
+ - - - - - 
+
+Playing W/xargs
+The xargs command reads a list of arguments from stdin and executes a command using these arguments in the command line. The xargs command can also convert any one-line or multiple-line text inputs into other formats, such as multiple lines (specified number of columns) or a single line, and vice versa.
+
+The xargs command should be the first command to appear after a pipe operator. It uses standard input as the primary data source and executes another command using the values it reads from stdin as command-line arguments for the new command.
+
+The xargs command supplies arguments to a target command by reformatting the data received through stdin. By default, xargs will execute the echo command. In many respects, the xargs command is similar to the actions performed by the find command's -exec option.
+
+Xarg's default echo command can be used to convert multiple-line input to single-line text:
+
+# cat xargs_file.txt
+1
+2
+3
+4
+5
+# cat xargs_file.txt | xargs
+1 2 3 4 5
+
+The -n argument to xargs limits the number of elements placed on each command line invocation.
+
+# cat xargs_file.txt | xargs -n 2
+1 2
+3 4
+5
+
+The xargs command works by accepting input from stdin, parsing the data into individual elements, and invoking a program with these elements as the final command line arguments. By default, xargs will split the input based on whitespace and execute /bin/echo.
+
+Splitting the input into elements based on whitespace becomes an issue when file and folder names have spaces (or even newlines) in them. The My Documents folder would be parsed into two elements My and Documents, neither of which exists.
+
+Most problems have solutions and this is no exception.
+
+We can define the delimiter used to separate arguments. To specify a custom delimiter for input, use the -d option:
+
+# echo "split1Xsplit2Xsplit3Xsplit4" | xargs -d X
+split1 split2 split3 split4
+
+# echo "split1Xsplit2Xsplit3Xsplit4" | xargs -d X -n 2
+split1 split2
+split3 split4
+
+The xargs command integrates well with the find command. The output from find can be piped to xargs to perform more complex actions than the -exec option can handle. If the filesystem has files with spaces in the name, the find command's -print0 option will use a 0 (NULL) to delimit the elements, which works with the xargs -0 option to parse these. 
+
+# find . -type f -name "*.php" | xargs ls -l
+
+# find . -type f -print0 | xargs -0 ls -l
+-rw-r--r-- 1 root root 0 Oct  5 14:53 ./Hello World1.docx
+-rw-r--r-- 1 root root 0 Oct  5 14:53 ./Hello World2.docx
+-rw-r--r-- 1 root root 0 Oct  5 14:53 ./Hello World3.docx
+-rw-r--r-- 1 root root 0 Oct  5 14:53 ./Hello World4.docx
+-rw-r--r-- 1 root root 0 Oct  5 14:53 ./Hello World5.docx
+
+# find . -type f -name '*World*' -print0 | xargs -0 rm
+
+Count Number of Lines
+# find . -type f -iname '*.txt' -print0 | xargs -0 wc -l
+  6 ./file3.txt
+  3 ./file1.txt
+  6 ./file2.txt
+ 15 total
+
+ - - - - - 
+
+Translating W/tr
+The tr command is a versatile tool in the Unix command–warrior's kit. It is used to craft elegant one-liner commands. It performs substitution of characters, deletes selected characters, and can squeeze repeated characters from the standard input. Tr is short for translate, since it translates a set of characters to another set.
+
+The tr command accepts input through stdin (standard input) and cannot accept input through command-line arguments. It has this invocation format:
+tr [options] set1 set2
+
+perform translation of characters in the input from uppercase to lowercase:
+# echo "NETWORK WARRIOR" | tr 'A-Z' 'a-z'
+network warrior
+
+You can also use special characters such as '\t', '\n', or any ASCII characters
+
+using tr to encrypt and decrypt numeric characters:
+# echo 12345 | tr '0-9' '9876543210'
+87654
+
+# echo 87654 | tr '9876543210' '0-9'
+12345
+
+The tr command can be used to encrypt text. ROT13 is a well-known encryption algorithm. In the ROT13 scheme, characters are shifted by 13 positions, thus the same function can encrypt and decrypt text:
+
+# echo "tr came, tr saw, tr conquered." | tr 'a-zA-Z' 'n-za-mN-ZA-M'
+ge pnzr, ge fnj, ge pbadhrerq.
+
+# echo "ge pnzr, ge fnj, ge pbadhrerq." | tr 'a-zA-Z' 'n-za-mN-ZA-M'
+tr came, tr saw, tr conquered.
+
+convert each tab character to a single space:
+# tr '\t' ' ' < file1.txt
+
+The tr command has an option -d to delete a set of characters that appear on stdin using the specified set of characters to be deleted, as follows:
+
+$ cat file.txt | tr -d  '[set1]'
+#Only set1 is used, not set2
+
+# echo "Hello123 World456" | tr -d '0-9'
+Hello World
+
+Complementing character sets
+We can use a set to complement set1 using the -c flag. set2 is optional in the following command:
+$ tr -c [set1] [set2]
+
+# echo "Hello 1 World 3, What 7?" | tr -d -c '0-9 \n'
+ 1  3  7
+
+The tr command can perform many text-processing tasks. For example, it can remove multiple occurrences of a character in a string. The basic form for this is as follows:
+
+# tr -s '[set of characters to be squeezed]'
+
+# echo 'Hello     World  ?!' | tr -s ' '
+Hello World ?!
+
+
+get rid of extra newlines:
+# cat file10.txt
+
+Hello
+
+
+World
+
+
+
+.....
+# cat file10.txt | tr -s '\n'
+
+Hello
+World
+.....
+
+add a given list of numbers from a file
+# cat file11.txt
+1
+3
+5
+7
+
+# cat file11.txt | echo $[ $(tr '\n' '+' ) 0 ]
+16
+
+
+strip out the letters with the -d option, then replace the '\n' with +:
+# cat file12.txt
+1st
+2nd
+3rd
+4th
+5th
+
+# cat file12.txt | tr -d [a-z] | echo "Total: $[$(tr '\n' '+') 0 ]"
+Total: 15
+
+Character classes
+The tr command can use different character classes as sets. Here are the supported character classes:
+  alnum 	Alphanumeric characters
+  alpha 	Alphabetic characters
+  cntrl 	Control (nonprinting) characters
+  digit 	Numeric characters
+  graph 	Graphic characters
+  lower 	Lowercase alphabetic characters
+  print 	Printable characters
+  punct 	Punctuation characters
+  space 	Whitespace characters
+  upper 	Uppercase characters
+  xdigit 	Hexadecimal characters
+
+$ tr [:class:] [:class:]
+
+# echo "hello world" | tr '[:lower:]' '[:upper:]'
+HELLO WORLD
+
+ - - - - - 
