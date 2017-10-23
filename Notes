@@ -1682,3 +1682,1394 @@ $ tr [:class:] [:class:]
 HELLO WORLD
 
  - - - - - 
+
+Checksum and Verification
+Checksum programs are used to generate a relatively small unique key from files. We can recalculate the key to confirm that a file has not changed. Files may be modified deliberately (adding a new user changes the password file), accidentally (a data read error from a CD-ROM drive), or maliciously (a virus is inserted). Checksums let us verify that a file contains the data we expect it to.
+
+Checksums are used by backup applications to check whether a file has been modified and needs to be backed up.
+
+Most software distributions also have a checksum file available. Even robust protocols such as TCP can allow a file to be modified in transit. Hence, we need to know whether the received file is the original one or not by applying some kind of test.
+
+By comparing the checksum of the file we downloaded with the checksum calculated by the distributer, we can verify that the received file is correct. If the checksum calculated from the original file at the source location matches the one calculated at the destination, the file has been received successfully.
+
+Unix and Linux support several checksum programs, but the most robust and widely used algorithms are MD5 and SHA-1. The ms5sum and sha1sum programs generate checksum strings by applying the corresponding algorithm to the data.
+
+# md5sum file12.txt
+e3286a25d686340249bf495fba6ff00c  file12.txt
+
+The md5sum is a 32-character hexadecimal string as given.
+
+The integrity of a file can be verified with the generated file, like this:
+# md5sum file12.txt > md5_file12.txt
+# md5sum -c md5_file12.txt file12.txt
+file12.txt: OK
+
+check all the files using all .md5 information available, use this:
+$ md5sum -c *.md5
+
+SHA-1 is another commonly used checksum algorithm. It generates a 40-character hex code from the input. The sha1sum command calculates an SHA-1 checksum. Its usage is similar to md5sum.
+
+Checksum for Directories
+Checksums are calculated for files. Calculating the checksum for a directory requires recursively calculating the checksums for all the files in the directory.
+
+The md5deep or sha1deep commands traverse a file tree and calculate checksums for all files.
+
+# md5deep -r xargs > md5_xargsDirectory.txt
+# cat md5_xargsDirectory.txt
+6c26b77c925d365c33215371f63fbf1a  /tmp/xargs/file3.txt
+f49856a084d991a832f6a1842071a094  /tmp/xargs/file11.txt
+d4e03fcc92458f367784b2fe01335f7a  /tmp/xargs/file10.txt
+5b1c01aa9b0b9986ca1048b84233f431  /tmp/xargs/md5_file12.txt
+d355cb798f9bd86ac4005e9a2b426c40  /tmp/xargs/file1.txt
+e3286a25d686340249bf495fba6ff00c  /tmp/xargs/file12.txt
+85864c568b62c74f3990a97751b90373  /tmp/xargs/file2.txt
+
+*Note: The -r option allows md5deep to recurse into sub-directories. The -l option enables displaying the relative path, instead of the default absolute path.
+
+# find . -type f -name "*.php" -print0 | xargs -0 md5sum >> php_md5.txt
+# cat php_md5.txt
+d41d8cd98f00b204e9800998ecf8427e  ./file5.php
+d41d8cd98f00b204e9800998ecf8427e  ./file2.php
+d41d8cd98f00b204e9800998ecf8427e  ./file3.php
+d41d8cd98f00b204e9800998ecf8427e  ./file4.php
+d41d8cd98f00b204e9800998ecf8427e  ./index.php
+d41d8cd98f00b204e9800998ecf8427e  ./file1.php
+
+# md5sum -c php_md5.txt
+./file5.php: OK
+./file2.php: OK
+./file3.php: OK
+./file4.php: OK
+./index.php: OK
+./file1.php: OK
+
+*Note: The md5 and SHA-1 checksums are unidirectional hash algorithms, which cannot be reversed to form the original data. These hashes are commonly used to store passwords. Only the hash for a password is stored. When a user needs to be authenticated, the password is read  and converted to the hash and that hash is compared to the stored hash. If they  are the same, the password is authenticated and access is provided.
+
+The hash for user passwords in Linux is stored in the /etc/shadow file.
+Typical line from /etc/shadow:
+toor:$6$vpTrpxLo$C3WzcvlPnVo9fM5TGAXIMTpqx3aT7G4cKsxv84XVsG9rzFJK..cAEDKftSdSJZ/MutC5f5zgJty9CeqQ0ZV1V/:16419:0:99999:7:::
+
+In some situations, we need to write scripts to edit passwords or add users. In that case, we must generate a shadow password string and write a similar line to the preceding one to the shadow file. We can generate a shadow password using openssl.
+
+Shadow passwords are usually salted passwords. SALT is an extra string used to obfuscate and make the encryption stronger. Salt consists of random bits that are used as one of the inputs to a key derivation function that generates the salted hash for the password.
+
+# openssl passwd -1 -salt SALT_STRING PASSWORD
+
+# openssl passwd -1 -salt SaltItUp HorseBatteryStaple
+$1$SaltItUp$A.fctQ6LXZvosStMohuMR0
+
+ - - - - - 
+
+Cryptographic Tools and Hashes
+Encryption techniques are used to protect data from unauthorized access. Unlike the checksum algorithms we just discussed, encryption programs can reconstruct the original data with no loss.
+gpg, base64
+
+gpg (GNU privacy guard) is a widely used tool for protecting files to ensure that data is not read until it reaches its intended destination.
+
+In order to encrypt a file with gpg, use this:
+$ gpg -c filename
+
+# gpg -c passwd.sh
+
+In order to decrypt a gpg file, use the following command:
+$ gpg filename.gpg
+
+# gpg passwd.sh
+
+
+Base64 is a group of similar encoding schemes that represent binary data in an ASCII string format by translating it into a radix-64 representation. These programs are used to transmit binary data via e-mail. The base64 command encodes and decodes the Base64 string. To encode a binary file into the Base64 format, use this:
+$ base64 filename > outputfile
+
+# base64 passwd.sh > passwd64
+
+Alternatively, use this command:
+$ cat file | base64 > outputfile
+
+base64 can read from stdin
+decode base64 data as follows:
+$ base64 -d file > outputfile
+
+# base64 -d passwd64 > passwd64_decode.sh
+
+Alternatively, use this:
+$ cat base64_file | base64 -d > outputfile
+
+ - - - - - 
+
+Sorting Unique and Duplicate Lines
+The sort command sorts text files and stdin. It can be coupled with other commands to produce the required output. uniq is often used with sort to extract unique (or duplicate) lines.
+
+sort a set of files:
+# sort phonic.txt PHONIC.txt > sorted.txt
+
+For a numerical sort:
+$ sort -n file.txt
+
+To sort in the reverse order:
+$ sort -r file.txt
+
+To sort by months (in the order Jan, Feb, March,...):
+$ sort -M ytd.txt
+
+To merge two already sorted files:
+$ sort -m sorted1 sorted2
+
+To find the unique lines from a sorted file:
+$ sort file1.txt file2.txt | uniq
+
+# cat PHONIC.txt PHONICa.txt
+ALFA
+BRAVO
+CHARLIE
+DELTA
+ALFA
+BRAVO
+CHARLIE
+DELTA
+
+# sort PHONIC.txt PHONICa.txt | uniq
+ALFA
+BRAVO
+CHARLIE
+DELTA
+
+To check whether a file has already been sorted:
+# sort -c unsorted.txt
+sort: unsorted.txt:3: disorder: bravo
+
+# if sort -C unsorted.txt; then echo "-OK"; else echo "-Nope"; fi
+ -Nope
+
+Sorting According to Keys or Columns
+The -k option specifies the characters to sort by. A single digit specifies the column.
+
+# cat data.txt
+redhat  1000
+centos  0
+opensuse        0
+suse    800
+debian  0
+ubuntu  500
+
+# sort -nk 2 data.txt
+centos  0
+debian  0
+opensuse        0
+ubuntu  500
+suse    800
+redhat  1000
+
+# sort -rnk 2 data.txt
+redhat  1000
+suse    800
+ubuntu  500
+opensuse        0
+debian  0
+centos  0
+
+# sort -hk 1 data.txt
+centos  0
+debian  0
+opensuse        0
+redhat  1000
+suse    800
+ubuntu  500
+
+When -k is followed by a single integer, it specifies a column in the text file. Columns are separated by space characters.
+
+If we need to specify keys as a group of characters (for example, characters 2-3 of column 1), we define the range as two integers separated by a period to define a character position, and join the first and last character positions with a comma.
+
+To use the first character as the key:
+$ sort -k 1,1 data.txt
+
+# cat char.txt
+alfa
+bravo
+chalie
+delta
+echo
+
+# sorted based on column 1 characters 2-3 (i.e. 1.2,1.3)
+# -b, --ignore-leading-blanks
+# sort -bk 1.2,1.3 char.txt
+echo
+delta
+chalie
+alfa
+bravo
+
+To make the sort's output xargs compatible with the \0 terminator:
+$ sort -z data.txt | xargs -0
+
+text may contain unnecessary extraneous characters such as spaces. To sort them in dictionary order, ignoring punctuations:
+# -b, --ignore-leading-blanks
+	ignore leading blanks
+# -d, --dictionary-order
+	consider only blanks and alphanumeric characters
+
+$ sort -bd unsorted.txt
+
+uniq
+The uniq command finds the unique lines in a given input (stdin or a filename command line argument) and either reports or removes the duplicated lines.
+
+*Note: This command only works with sorted data. Hence, uniq is often used with the sort command.
+
+# cat uniq.txt
+alfa
+alfa
+bravo
+echo
+echo8
+bravo
+
+# sort uniq.txt | uniq
+alfa
+bravo
+echo
+echo8
+
+Display only unique lines (the lines that are not repeated or duplicated in the input file):
+# sort uniq.txt | uniq -u
+echo
+echo8
+
+count how many times each of the lines appears in the file:
+# sort uniq.txt | uniq -c
+      2 alfa
+      2 bravo
+      1 echo
+      1 echo8
+
+find duplicate lines in the file:
+# sort uniq.txt | uniq -d
+alfa
+bravo
+
+To specify keys, we can use a combination of the -s and -w arguments:
+-s: This specifies the number for the first N characters to be skipped
+-w: This specifies the maximum number of characters to be compared
+
+# cat uniqX.txt
+a:alfa:redhat
+a:alfa:centos
+b:bravo:redhat
+b:bravo:centos
+e:echo:redhat
+e:echo:centos
+
+# sort uniqX.txt | uniq -s 1 -w 1
+a:alfa:centos
+
+# sort uniqX.txt | uniq -s 2 -w 3
+a:alfa:centos
+b:bravo:centos
+e:echo:centos
+
+
+When the output from one command is passed as input to the xargs command, it's best to use a zero-byte terminator for each element of data. Passing output from uniq to xargs is no exception to this rule. If a zero-byte terminator is not used, the default space characters are used to split the arguments in the xargs command. 
+
+The -z option generates zero-byte-terminated output:
+$ uniq -z file.txt
+$ uniq -z file.txt | xargs -0 rm
+
+ - - - - - 
+
+Temporary File Naming and Random Numbers
+Shell scripts often need to store temporary data. The most suitable location to do this is /tmp
+
+The mktemp command will create a unique temporary file or folder name:
+# mktemp
+/tmp/tmp.PrEwghf4Sg
+
+Create a temporary directory:
+# mktemp -d
+/tmp/tmp.TVVWSBTBHM
+
+generate a filename without creating a file or directory:
+# mktemp -u
+/tmp/tmp.hMiZv6UQYp
+
+create the temporary filename based on a template:
+# mktemp template.XXX
+template.S7d
+# mktemp template.XXX
+template.lJo
+
+# mktemp -d template.XXX
+template.QMU
+# mktemp -d template.XXX
+template.gC6
+
+
+# ls -ltra
+-rw------- 1 root root    0 Oct  6 23:45 template.S7d
+-rw------- 1 root root    0 Oct  6 23:45 template.lJo
+drwx------ 2 root root 4.0K Oct  6 23:45 template.QMU
+drwx------ 2 root root 4.0K Oct  6 23:45 template.gC6
+
+When providing custom templates, X will be replaced by a random alphanumeric character. Also note that there must be at least three X characters in the template for mktemp to work.
+
+ - - - - - 
+
+Splitting Files and Data
+Splitting a large file into smaller pieces is sometimes necessary.
+
+The split command supports M for MB, G for GB, c for byte, and w for word.
+
+balloon file, 1 1GB file of random data:
+# dd if=/dev/urandom of=./random1GB.txt bs=1G count=1
+
+# split -b 100M random1GB.txt
+# ls -l
+total 2.1G
+-rw-r--r-- 1 root root 1.0G Oct  6 15:12 random1GB.txt
+drwxr-xr-x 5 root root 4.0K Oct  6 15:13 ..
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xaa
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xab
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xac
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xad
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xae
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xaf
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xag
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xah
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xai
+-rw-r--r-- 1 root root 100M Oct  6 15:13 xaj
+drwxr-xr-x 2 root root 4.0K Oct  6 15:13 .
+-rw-r--r-- 1 root root  24M Oct  6 15:13 xak
+
+To use numeric suffixes, use the -d argument. It is also possible to specify a suffix length using -a length:
+
+# split -b 100M random1GB.txt -d -a5
+# ls -l
+total 2.1G
+-rw-r--r-- 1 root root 1.0G Oct  6 15:12 random1GB.txt
+drwxr-xr-x 5 root root 4.0K Oct  6 15:13 ..
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00000
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00001
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00002
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00003
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00004
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00005
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00006
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00007
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00008
+-rw-r--r-- 1 root root 100M Oct  6 15:17 x00009
+drwxr-xr-x 2 root root 4.0K Oct  6 15:17 .
+-rw-r--r-- 1 root root  24M Oct  6 15:17 x00010
+
+Specifying a Filename Prefix for the Split Files:
+# split -b 100M random1GB.txt -d -a5 split_file
+# ls -l
+total 2.1G
+-rw-r--r-- 1 root root 1.0G Oct  6 15:12 random1GB.txt
+drwxr-xr-x 5 root root 4.0K Oct  6 15:13 ..
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00000
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00001
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00002
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00003
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00004
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00005
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00006
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00007
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00008
+-rw-r--r-- 1 root root 100M Oct  6 15:19 split_file00009
+drwxr-xr-x 2 root root 4.0K Oct  6 15:19 .
+-rw-r--r-- 1 root root  24M Oct  6 15:19 split_file00010
+
+split files based on the number of lines in each split rather than size:
+# split -l 13 words.txt
+# ls
+total 1.1G
+-rw-r--r-- 1 root root 1.0G Oct  6 15:12 random1GB.txt
+drwxr-xr-x 5 root root 4.0K Oct  6 15:13 ..
+-rw-r--r-- 1 root root  164 Oct  6 15:22 words.txt
+drwxr-xr-x 2 root root 4.0K Oct  6 15:23 .
+-rw-r--r-- 1 root root   86 Oct  6 15:23 xab
+-rw-r--r-- 1 root root   78 Oct  6 15:23 xaa
+
+# cat xaa
+alfa
+bravo
+charlie
+. . .
+ . .
+  .
+
+# cat xab
+november
+oscar
+papa
+. . .
+ . .
+  .
+
+The csplit utility splits files based on context instead of size. It can split based on line count or regular expression pattern. It's particularly useful for splitting log files.
+
+csplit file at line number:
+
+# csplit words.txt 5
+# cat xx00
+alfa
+bravo
+charlie
+delta
+
+# cat xx01
+echo
+foxtrot
+golf
+hotel
+india
+. . .
+ . .
+  .
+
+
+csplit file W/regex:
+# csplit words.txt /^uni/
+
+# cat xx01
+uniform
+victor
+whiskey
+xray
+yankee
+zulu
+
+ - - - - - 
+
+Slicing Filenames Based on Extensions
+The shell has built-in features for manipulating filenames.
+
+The % operator will extract the name from name.extension.
+# file_name=CertificationGuide.pdf
+# echo ${file_name%.*}
+CertificationGuide
+
+The # operator will extract the extension:
+# echo ${file_name#*.}
+pdf
+
+Here is a practical example to extract different portions of a domain name such as URL=www.google.com:
+
+Remove Rightmost .*:
+# echo ${URL%.*}
+www.google
+
+Remove Right to Leftmost .*
+# echo ${URL%%.*}
+www
+
+Remove Leftmost *.
+# echo ${URL#*.}
+google.com
+
+Remove Left to Rightmost *.
+# echo ${URL##*.}
+com
+
+% vs %%:
+
+# echo $URL
+http://www.google.com
+
+# echo ${URL%o*}
+http://www.google.c
+
+# echo ${URL%%o*}
+http://www.g
+
+# vs ##
+
+# echo ${URL#*g}
+oogle.com
+
+# echo ${URL##*g}
+le.com
+
+ - - - - - 
+
+Renaming and Moving Files in Bulk
+We frequently need to move and perhaps rename a set of files. System housekeeping often requires moving files with a common prefix or file type to a new folder.
+
+The rename command changes filenames using Perl regular expressions. By combining the find, rename, and mv commands, we can perform a lot of things.
+
+ - - - 
+
+#!/bin/bash
+#rename all .png or .jpg files in working directory
+#extract file extension from ${img##*.} variable
+
+count=01;
+for img in `find . -maxdepth 1 -type f -iname '*.png' -o -iname '*.jpg'`
+do
+  new=img-$count.${img##*.}
+
+  echo "$img to $new"
+  mv "$img" "$new"
+  let count++
+done
+
+ - - - 
+
+Spell–Checking and Dictionary Manipulation
+The /usr/share/dict/ directory contains one or perhaps more dictionary files, which are text files with a list of words.
+
+aspell - interactive spell checker
+  list 	Produce a list of misspelled words from standard input.
+
+# echo "People" | aspell list
+# echo "Peple" | aspell list
+Peple
+
+look - display lines beginning with a given string
+
+# look tango
+tango
+tangoed
+tangoing
+tangoreceptor
+tangos
+
+ - - - - - 
+
+Automating Interactive Input
+It's easier for casual users to interact with a set of prompts rather than remember command line flags and the proper order. For instance, a script to back up a user's work, but not to back up and lock files.
+
+used echo -e to produce the input sequence. The -e option signals to echo to interpret escape sequences.
+
+# echo -e "PDFs\nxlxs" > input.txt
+# cat input.txt
+PDFs
+xlxs
+
+The expect application is an interpreter similar to the shell. It's based on the TCL language. We'll discuss the spawn, expect, and send commands for simple automation. With the power of the TCL language behind it, expect can do much more complex tasks.
+
+Automating W/Expect
+expect does not come by default on all Linux distributions. You may have to install the expect package with your package manager
+
+ spawn 	Runs the new target application.
+ expect 	Watches for a pattern to be sent by the target application.
+ send 	Sends a string to the target application.
+
+http://www.tcl.tk/
+
+ - - - - - 
+
+Generating Files of any Size (i.e. Balloon File(s))
+A file of random data is useful for testing. You can use such files to test application efficiency, to confirm that an application is truly input-neutral, to confirm there's no size limitations in your application, and more.
+
+The easiest way to create a large file of a given size is with the dd command. The dd command clones the given input and writes an exact copy to the output. Input can be stdin, a device file, a regular file, and so on. Output can be stdout, a device file, a regular file, and so on.
+
+# dd if=/dev/zero of=./zero.txt bs=1M count=1
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.00551913 s, 190 MB/s
+
+if defines the input file
+of defines the output file
+bs defines bytes in a block
+count defines the number of blocks to be copied
+
+*Note: Be careful while using the dd command as root, as it operates on a low level with the devices. A mistake could wipe your disk or corrupt the data. Double-check your dd command syntax, especially your of = parameter for accuracy.
+
+use various units for blocksize (bs). Append any of the following characters to the number to specify the size:
+ Unit size 	Code
+ Byte (1 B) 	C
+ Word (2 B) 	W
+ Block (512 B)	B
+ Kilobyte (1024 B)	K
+ Megabyte (1024 KB)	M
+ Gigabyte (1024 MB)	G
+
+/dev/zero is a character special device, which returns the zero byte (\0).
+
+If the input parameter (if) is not specified, dd will read input from stdin. If the output parameter (of) is not specified, dd will use stdout.
+
+The dd command can be used to measure the speed of memory operations by transferring a large quantity of data to /dev/null and checking the command output.
+
+ - - - - - 
+
+Intersection and set Difference (A-B) on Text Files
+The comm command is a utility to perform a comparison between two sorted files. It displays lines that are unique to file 1, file 2, and lines in both files. It has options to suppress one more column, making it easy to perform intersection and difference operations.
+
+Intersection: The intersection operation will print the lines the specified files have in common with one another
+
+Difference: The difference operation will print the lines the specified files contain and that are not the same in all of those files
+
+Set difference: The set difference operation will print the lines in file A that do not match those in all of the set of files specified.
+
+
+# cat outputA.txt
+alfa
+bravo
+charlie
+delta
+echo
+foxtrot
+golf
+
+# cat outputB.txt
+foxtrot
+golf
+hotel
+india
+juliett
+
+# comm outputA.txt outputB.txt
+alfa
+bravo
+charlie
+delta
+echo
+                foxtrot
+                golf
+        hotel
+        india
+        juliett
+
+ The first column of the output contains lines that are only in outputA.txt. The second column contains lines that are only in outputB.txt. The third column contains the common lines from outputA.txt and outputB.txt. Each of the columns are delimited using the tab (\t) character.
+
+ In order to print the intersection of two files, we need to remove the first and second columns and print the third column. The -1 option removes the first column, and the -2 option removes the second column, leaving the third column:
+
+ # comm outputA.txt outputB.txt -1 -2
+foxtrot
+golf
+
+Print only the lines that are uncommon between the two files by removing column 3:
+
+# comm outputA.txt outputB.txt -3
+alfa
+bravo
+charlie
+delta
+echo
+        hotel
+        india
+        juliett
+
+The lines can be merged by removing the tab characters with tr:
+
+# comm outputA.txt outputB.txt -3 | tr -d '\t'
+alfa
+bravo
+charlie
+delta
+echo
+hotel
+india
+juliett
+
+The comm command will accept a - character on the command line to read one file from stdin. This provides a way to compare more than one file with a given input.
+
+# comm outputA.txt -
+alfa
+                alfa
+bravo
+                bravo
+zulu
+charlie
+delta
+echo
+foxtrot
+golf
+        zulu
+
+ - - - - - 
+
+Working W/File Permissions, Ownership, and the Sticky Bit
+Each file possesses many types of permissions. Three sets of permissions (user, group, and others) are commonly manipulated.
+
+The user is the owner of the file, who commonly has all access permitted. The group is the collection of users (as defined by the system administrator) that may be permitted some access to the file. Others are any users other than the owner or members of the owner's group.
+
+*Random Note:
+ls --time-style
+
+--time-style=STYLE
+              with -l, show times using style STYLE: full-iso, long-iso, iso, locale, +FORMAT.  FORMAT
+              is  interpreted  like  ‘date’;  if FORMAT is FORMAT1<newline>FORMAT2, FORMAT1 applies to
+              non-recent files and FORMAT2 to recent files; if STYLE is prefixed with ‘posix-’,  STYLE
+              takes effect only outside the POSIX locale
+
+# ls -ltra --time-style=+"%Y-%m-%d %H:%M:%S"
+total 8.0K
+drwxr-xr-x 12 root root 4.0K 2017-10-11 14:56:43 ..
+-rw-r--r--  1 root root    0 2017-10-11 15:01:38 file3.pdf
+-rw-r--r--  1 root root    0 2017-10-11 15:01:38 file2.pdf
+-rw-r--r--  1 root root    0 2017-10-11 15:01:38 file1.pdf
+
+The first column of the output defines the file type as follows:
+ -	:This is used if it is a regular file
+ d	:This is used if it is a directory
+ c	:This is used for a character device
+ b	:This is used for a block device
+ l	:This is used if it is a symbolic link
+ s	:This is used for a socket
+ p	:This is used for a pipe
+
+The next nine characters are divided into three groups of three letters each (--- --- ---). The first three characters correspond to the permissions of the user (owner), the second sets of three characters correspond to the permissions of the group, and the third sets of three characters correspond to the permissions of others. Each character in the nine-character sequence (nine permissions) specifies whether permission is set or unset. If the permission is set, a character appears in the corresponding position, otherwise a - character appears in that position, which means that the corresponding permission is unset (unavailable).
+
+The three common letters in the trio are:
+r Read: When this is set, the file, device, or directory can be read.
+w Write: When this is set, the file, device, or directory can be modified. On folders, this defines whether files can be created or deleted.
+x execute: When this is set, the file, can be executed. On folders, this defines whether the files in the folder can be accessed.
+
+User (permission string: rwx------): These define the options a user has. Usually, the user's permission is rw- for a data file and rwx for a script or executable. The user has one more special permission called setuid (S), which appears in the position of execute (x). The setuid permission enables an executable file to be executed effectively as its owner, even when the executable is run by another user. An example of a file with setuid permission set is -rwS------.
+
+Group (permission string: ---rwx---): The second set of three characters specifies the group permissions. Instead of setuid, the group has a setgid (S) bit. This enables the item to run an executable file with an effective group as the owner group. But the group, which initiates the command, may be different. An example of group permission is ----rwS---.
+
+Others (permission string: ------rwx): Other permissions appear as the last three characters in the permission string. If these are set, anyone can access this file or folder. As a rule you will want to set these bits to ---.
+
+Directories have a special permission called a sticky bit. When a sticky bit is set for a directory, only the user who created the directory can delete the files in the directory, even if the group and others have write permissions. The sticky bit appears in the position of execute character (x) in the others permission set. It is represented as character t or T. The t character appears in the x position if the execute permission is unset and the sticky bit is set. If the sticky bit and the execute permission are set, the T character appears in the x position.
+
+Set these permissions (rwx rw- r-) with chmod:
+$ chmod u=rwx g=rw o=r file1.sh
+
+ u 	:This specifies user permissions
+ g 	:This specifies group permissions
+ o 	:This specifies others permissions
+
+Use + to add permission to a user, group, or others, and use - to remove the permissions:
+$ chmod o+x file1.sh
+
+Add the executable permission to all permission categories, that is, for user, group, and others:
+$ chmod a+x file1.sh
+
+"a" means all, user, group, and others
+
+Use - to remove permission to a user, group, or others:
+$ chmod a-x file1.sh
+
+Permissions can be denoted with three-digit octal numbers in which each digit corresponds to user, group, and other, in that order.
+
+Read, write, and execute permissions have unique octal numbers, as follows:
+r == 4
+w == 2
+x == 1
+
+We calculate the required combination of permissions by adding the octal values:
+rw- == 4 + 2 = 6
+r-x == 4 + 1 = 5
+
+The permission rwx rw- r-- in the numeric method is as follows:
+rwx == 4 + 2 + 1 = 7
+rw- == 4 + 2 = 6
+r-- == 4
+
+Changing Ownership:
+The chown command will change the ownership of files and folders.
+
+$ chown user.group filename
+
+# chown mysql.users mysql-safe.log
+-rw-r--r--  1 mysql users    0 Oct 12 10:23 mysql-safe.log
+
+Setting the sticky bit
+The sticky bit can be applied to directories. When the sticky bit is set, only the owner can delete files, even though others have write permission for the folder.
+
+The sticky bit is set with the +t option to chmod:
+$ chmod a+t directory_name
+
+Applying permissions recursively to files
+Sometimes, you may need to change the permissions of all the files and directories inside the current directory recursively. The -R option to chmod supports recursive changes:
+$ chmod -R 777 .
+
+The -R option specifies to change the permissions recursively.
+We used . to specify the path as the current working directory. This is equivalent to:
+$ chmod -Rv 777 "$(pwd)"
+
+Applying ownership recursively
+The chown command also supports the -R flag to recursively change ownership:
+
+file
+$ chown -Rv user.group file1.txt
+$ chown -Rv user:group file1.txt
+
+directory
+$ chown -Rv user.group dir1
+$ chown -Rv user:group dir1
+
+       -R, --recursive
+              operate on files and directories recursively
+       -v, --verbose
+              output a diagnostic for every file processed
+
+ - - - - - 
+
+Making Files Immutable
+When a file is made immutable, any user or super user cannot remove the file until the immutable attribute is removed from the file. Making a file immutable is one method for securing files from modification.
+
+Use chattr to make a file immutable:
+$ chattr +i file
+
+# chattr +i mysql_2017.10-01.sql
+# ls -l mysql_2017.10-01.sql
+-rwxrwxrwt 1 root root 0 Oct 12 10:31 mysql_2017.10-01.sql
+
+# rm -fr mysql_2017.10-01.sql
+rm: cannot remove `mysql_2017.10-01.sql': Operation not permitted
+
+# chattr -i mysql_2017.10-01.sql
+# ls -l mysql_2017.10-01.sql
+-rwxrwxrwt 1 root root 0 Oct 12 10:31 mysql_2017.10-01.sql
+
+# rm -fr mysql_2017.10-01.sql
+
+ - - - - - 
+
+Generating Blank Files in Bulk
+Scripts must be tested before they are used on a live system. We may need to generate thousands of files to confirm that there are no memory leaks or processes left hanging.
+
+The touch command creates blank files or modifies the timestamp of existing files.
+
+$ touch filename
+
+ - - - 
+for name in {1..100}.txt 
+do 
+  touch $name 
+done
+ - - - 
+
+touch -a 	:This modifies the access time
+touch -m 	:This modifies the modification time
+
+Instead of the current time, we can specify the time and date:
+$ touch -d "Fri Jun 25 20:50:14 IST 1999" filename
+
+       -r, --reference=FILE
+              use this file’s times instead of current time
+
+# stat /etc/httpd/conf/httpd.conf
+  File: `/etc/httpd/conf/httpd.conf'
+  Size: 35716           Blocks: 72         IO Block: 4096   regular file
+Device: fd00h/64768d    Inode: 3026423     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2017-10-15 03:08:01.226329694 -0400
+Modify: 2017-03-03 15:42:07.782365490 -0500
+Change: 2017-03-03 15:42:07.787365637 -0500
+
+# touch -d "2016-01-01 13:01:58" /etc/httpd/conf/httpd.conf
+
+# stat /etc/httpd/conf/httpd.conf
+  File: `/etc/httpd/conf/httpd.conf'
+  Size: 35716           Blocks: 72         IO Block: 4096   regular file
+Device: fd00h/64768d    Inode: 3026423     Links: 1
+Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2016-01-01 13:01:58.000000000 -0500
+Modify: 2016-01-01 13:01:58.000000000 -0500
+Change: 2017-10-17 14:48:39.555981503 -0400
+
+ - - - - - 
+
+Symbolic Links and Their Targets
+
+Symbolic links are pointers to other files or folders. They are similar in function to aliases in MacOS X or shortcuts in Windows.
+
+To create a symbolic link run the following command:
+$ ln -s target symbolic_link_name
+
+print symbolic links in the current directory:
+$ ls -l | grep "^l"
+
+print all symbolic links in the current directory and subdirectories:
+$ find . -type l -print
+
+display the target path for a given symbolic link, use the readlink command:
+$ readlink web_dir
+        /var/www
+
+# readlink -f /usr/lib64/libaprutil-1.so
+/usr/lib64/libaprutil-1.so.0.3.9
+
+ -f absolute path
+
+ - - - - - 
+
+Enumerating File Type Statistics
+On Unix/Linux systems, file types are not defined by the file extension (as Microsoft Windows does). Unix/Linux systems use the file command, which examines the file's contents to determine a file's type.
+
+print the type of a file:
+
+$ file filename
+
+$ file /etc/passwd
+/etc/passwd: ASCII text
+
+*Note: Bash Built-in variables
+ 	$# = number of arguments.
+ 	$@ = what parameters were passed.
+ 	$? = was last command successful, 0 == successful
+
+ - - - - - 
+
+Loopback Files
+Linux filesystems normally exist on devices such as disks or memory sticks. A file can also be mounted as a filesystem. This filesystem-in-a-file can be used for testing, for customized filesystems, or even as an encrypted disk for confidential information.
+
+Principles of Loopback Devices and Ramdisks
+http://www.tldp.org/HOWTO/archived/Loopback-Root-FS/Loopback-Root-FS-2.html
+
+
+To create a 1 GB ext4 filesystem in a file:
+
+# dd if=/dev/zero of=loopback_filesystem bs=1G count=1
+1+0 records in
+1+0 records out
+1073741824 bytes (1.1 GB) copied, 4.93061 s, 218 MB/s
+
+# mkfs.ext4 loopback_filesystem
+mke2fs 1.41.12 (17-May-2010)
+loopback_filesystem is not a block special device.
+Proceed anyway? (y,n) y
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+65536 inodes, 262144 blocks
+13107 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=268435456
+8 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376
+
+Writing inode tables: done
+Creating journal (8192 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+This filesystem will be automatically checked every 22 mounts or
+180 days, whichever comes first.  Use tune2fs -c or -i to override.
+
+# file loopback_filesystem
+loopback_filesystem: Linux rev 1.0 ext4 filesystem data (extents) (large files) (huge files)
+
+Create a mount point and mount the loopback file with mkdir and mount:
+
+# mkdir mnt
+
+*Note: The -o loop option is used to mount loopback filesystems.
+# mount -o loop loopback_filesystem mnt/
+
+*Note: fdisk is a standard partitioning tool on Linux systems 
+
+ - Partitioning W/fdisk
+http://www.tldp.org/HOWTO/Partition/fdisk_partitioning.html
+
+unmount W/umount
+
+# umount loopback_filesystem
+
+You can also use losetup
+https://linux.die.net/man/8/losetup
+
+Mounting ISO Files as Loopback
+An ISO file is an archive of an optical media. We can mount ISO files in the same way that we mount physical disks using loopback mounting.
+
+We can even use a nonempty directory as the mount path. Then, the mount path will contain data from the devices rather than the original contents, until the device is unmounted. 
+
+# mount -o loop CentOS-7-x86_64-DVD.iso mnt_iso/
+*Note: ISO is a read-only filesystem.
+
+Flush Changes Immediately W/sync
+Changes on a mounted device are not immediately written to the physical device. They are only written when the internal memory buffer is full. We can force writing with the sync command.
+
+$ sync
+
+ - - - - - 
+
+Creating ISO Files and Hybrid ISO
+An ISO image is an archive format that stores the exact image of an optical disk such as CD-ROM, DVD-ROM, and so on. ISO files are commonly used to store content to be burned to optical media.
+
+We need to distinguish between bootable and non-bootable optical disks. Bootable disks are capable of booting from themselves and also running an operating system or another product. Non-bootable ISOs cannot do that.
+
+create an ISO image from /dev/cdrom:
+$ cat /dev/cdrom > image.iso
+
+the preferred way to create an ISO image is with dd:
+$ dd if=/dev/cdrom of=image.iso
+
+The mkisofs command creates an ISO image in a file. The output file created by mkisofs can be written to CD-ROM or DVD-ROM with utilities such as cdrecord. The mkisofs command will create an ISO file from a directory containing all the files to be copied to the ISO file:
+
+$ mkisofs -V "Label" -o image.iso source_dir/ 
+
+We can convert standard ISO files into hybrid ISOs with the isohybrid command.
+
+*Note: Most Linux distros don't include isohybrid by default, install the syslinux package using your package manager.
+
+make an ISO file bootable:
+$ isohybrid image.iso
+
+The ISO file can now be written to USB storage devices.
+
+write the ISO to a USB storage device:
+$ dd if=image.iso of=/dev/sdb1
+
+Use the appropriate device instead of /dev/sdb1, or you can use cat, as follows:
+
+$ cat image.iso >> /dev/sdb1
+
+Burning an ISO From the Command Line
+The cdrecord command burns an ISO file to a CD-ROM or DVD-ROM.
+
+burn the image to a CD/DVD:
+$ cdrecord -v dev=/dev/cdrom image.iso
+
+You can specify the burning speed with the -speed option. Eight, for example is the speed specified as 8x
+
+$ cdrecord -v dev=/dev/cdrom image.iso -speed 8
+
+A CD-ROM can be burned in multi-sessions such that we can burn data multiple times on a disk. Multisession burning can be done with the -multi option:
+
+$ cdrecord -v dev=/dev/cdrom image.iso -multi
+
+on a desktop computer eject will eject the tray, eject -t will close the tray.
+
+$ eject
+
+$ eject -t
+
+ - - - - - 
+
+Finding the Difference Between Files, and Patching
+When multiple versions of a file are available, it is useful to highlight the differences between files rather than comparing them manually. When working with multiple developers, changes need to be distributed to the others. Sending the entire source code to other developers is time consuming. Sending a difference file instead is helpful, as it consists of only lines which are changed, added, or removed, and line numbers are attached with it. This difference file is called a patch file. We can add the changes specified in the patch file to the original source code with the patch command. We can revert the changes by patching again.
+
+# cat v1.txt
+alfa
+bravo
+charlie
+
+# cat v2.txt
+Alfa
+bravo
+charliE
+
+Nonunified diff output (without the -u flag):
+# diff v1.txt v2.txt
+1c1
+< alfa
+---
+> Alfa
+3c3
+< charlie
+---
+> charliE
+
+The -u option produces a unified output. Unified diff output is more readable and is easier to interpret.
+
+In unified diff, the lines starting with + are the added lines and the lines starting with - are the removed lines.
+
+unified diff output:
+# diff -u v1.txt v2.txt
+--- v1.txt      2017-10-19 15:18:27.964646635 -0400
++++ v2.txt      2017-10-19 15:18:50.709296493 -0400
+@@ -1,3 +1,3 @@
+-alfa
++Alfa
+ bravo
+-charlie
++charliE
+
+A patch file can be generated by redirecting the diff output to a file:
+# diff -u v1.txt v2.txt > output.patch
+
+The patch command can apply changes to either of the two files.
+
+# cat v1.txt
+alfa
+bravo
+charlie
+
+# patch -p1 v1.txt < output.patch
+patching file v1.txt
+
+# cat v1.txt
+Alfa
+bravo
+charliE
+
+The diff command can act recursively against directories.
+
+# diff -ru dir1/ dir2/
+Only in dir1/: dir1-A
+Only in dir2/: file10.txt
+Only in dir2/: file1.txt
+Only in dir2/: file9.txt
+Only in dir1/: yeti.tumbler.pdf
+
+ - - - - - 
+
+Using Head and Tail
+When examining a large file, thousands of lines long, the cat command, which will display all the lines is not suitable. We may need to print the first n lines or last n lines or print all except the last n lines or all except the first n lines, or the lines between two locations.
+
+The head and tail commands can do this.
+
+# head file.txt
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+# cat file.txt | head
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+
+# head -n3 file.txt
+1
+2
+3
+
+print all the lines except the last five lines:
+# seq 11 | head -n -5
+1
+2
+3
+4
+5
+6
+
+tail - output the last part of files. Print  the  last  10  lines of each FILE to standard output.
+
+# seq 25 | tail
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+
+# cat file.txt | tail -n3
+23
+24
+25
+
+print all lines excluding the first X lines
+# seq 100 | tail -n +95
+95
+96
+97
+98
+99
+100
+
+tail has a special option -f or --follow, which enables tail to follow the appended lines and display them as data is added:
+
+$ tail -f growing_file
+
+# tail -f /var/log/messages
+
+The dmesg command returns contents of the kernel ring buffer messages. We can use this to debug USB devices, examine disk behavior, or monitor network connectivity.
+
+ - - - - - 
+
+Listing Only Directories - Alternative Methods
+Listing only directories via scripting is deceptively difficult. 
+
+# ls -d */
+ dir7/
+ dir5/
+ dir3/
+ dir1/
+
+# ls -F | grep "/$"
+ ../
+ dir7/
+ dir5/
+ dir3/
+ dir1/
+ ./
+
+# ls -l | grep "^d"
+ ..
+ dir7
+ dir5
+ dir3
+ dir1
+ .
+
+# find . -maxdepth 1 -type d -print
+.
+./dir7
+./dir1
+./dir5
+./dir3
+
+ - - - - - 
+
+Fast Command-Line Navigation W/pushd & popd
+pushd and popd are used to switch between multiple directories without retyping directory paths. pushd and popd create a stack of paths-a LastInFirstOut (LIFO) list of the directories we've visited.
+
+The pushd and popd commands replace cd for changing your working directory.
+
+push and change a directory to a path:
+# pushd /var/log/
+/var/log ~
+
+Now the stack contains /var/log ~ and the current directory is changed to /var/log
+
+push the next directory path:
+# pushd /etc/
+/etc /var/log ~
+
+Now the stack contains /etc /var/log ~ and the current directory is /etc
+
+You can push as many directory paths as needed.
+
+view the stack contents:
+# dirs
+/etc/logrotate.d /etc /var/log ~
+
+	/etc/logrotate.d /etc /var/log ~
+	0                1    2        3
+
+switch to any path in the list, example /var/log
+
+# dirs
+/etc/logrotate.d /etc /var/log ~
+
+# pushd +2
+/var/log ~ /etc/logrotate.d /etc
+
+# pwd
+/var/log
+
+To remove a specific path from the list:
+$ popd +NUMBER
+
+# dirs
+/home/tmp /etc /var/log
+
+# popd -1
+/home/tmp /var/log
+
+pushd and popd are helpful when there are more than three directory paths, when you're only using two location cd - is easier
+
+# cd /etc/
+# cd /var/log/
+# cd -
+/etc
+# pwd
+/etc
+# cd -
+/var/log
+
+ - - - - - 
+
+Counting the Number of Lines, Words, and Characters in a File
+Counting the number of lines, words, and characters in a text file is frequently useful. 
+
+The wc utility counts lines, words, and characters. It stands for word count.
+
+count the number of lines:
+# wc -l output.txt
+4 output.txt
+
+# cat output.txt | wc -l
+4
+
+count the number of words:
+# wc -w output.txt
+8 output.txt
+
+count the number of characters:
+# wc -c output.txt
+38 output.txt
+
+print the number of lines, words, and characters, execute wc without any options:
+# wc output.txt
+ 4  8 38 output.txt
+ |  |  |--> characters
+ |  |--> words
+ |--> lines
+
+print the length of the longest line in a file:
+# wc -L output.txt
+10 output.txt
+
+ - - - - - 
+
+Printing the Directory Tree
+The tree command prints graphical trees of files and directories. The tree command does not come with pre-installed...
+
+# yum install tree.x86_64
+
+# tree
+.
+├── dir1
+│   └── alfa.txt
+├── dir3
+├── dir5
+├── dir7
+│   └── zulu.pdf
+├── file.txt
+└── output.txt
+
+4 directories, 4 files
+
+
+display only files that match a pattern:
+# tree . -P '*.txt'
+.
+├── dir1
+│   └── alfa.txt
+├── dir3
+├── dir5
+├── dir7
+├── file.txt
+└── output.txt
+
+4 directories, 3 files
+
+
+display only files that do not match a pattern:
+# tree . -I '*.txt'
+.
+├── dir1
+├── dir3
+├── dir5
+└── dir7
+    └── zulu.pdf
+
+4 directories, 1 file
+
+
+print the size along with files and directories:
+# tree -h
+.
+├── [4.0K]  dir1
+│   └── [   0]  alfa.txt
+├── [4.0K]  dir3
+├── [4.0K]  dir5
+├── [4.0K]  dir7
+│   └── [   0]  zulu.pdf
+├── [  66]  file.txt
+└── [  38]  output.txt
+
+4 directories, 4 files
+
+
+The tree command can generate output in HTML as well as to a terminal.
+# tree -h -H http://localhost > /var/www/html/tree.html
+
+ - - - - - 
+
