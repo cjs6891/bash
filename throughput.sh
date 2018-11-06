@@ -8,6 +8,9 @@
 # Formula: Divide (byte(s)/second / 125000000)
 # 125000000 [byte(s)/second] == 1 [Gigabit(s)/second]
 
+# 1000 [Megabit(s)/second] == 125 [Megabyte(s)/second]
+#    1 [Gigabit(s)/second] == 125 [Megabyte(s)/second]
+
 if [ -z "$1" ]; then
         echo
         echo usage: $0 [network-interface]
