@@ -1,0 +1,48 @@
+PuTTY RGB Colors
+  Window --> Colours:
+    Default Foreground - 255/255/255
+    Default Background - 51/51/51
+    ANSI Black - 77/77/77
+    ANSI Green - 152/251/152
+    ANSI Yellow - 240/230/140
+    ANSI Blue - 205/133/63
+    ANSI Blue Bold -135/206/235
+    ANSI Magenta - 255/222/173 or 205/92/92
+    ANSI Cyan - 255/160/160
+    ANSI Cyan Bold - 255/215/0
+    ANSI White - 245/222/179
+
+  Window --> Appearance:
+    Font - Consolas, 10-point/12-point
+    
+ - - - - - - - - - - 
+
+Additional PuTTY Setting:
+  Session --> Logging:
+    C:\Users\%USERNAME%\PuTTY_Logs\&H-&Y&M&D-&T.log
+    
+    &H = Hostname
+    &Y = Year
+    &M = Month
+    &D = Day
+    &T = Time
+  
+  Terminal --> Keyboard:
+    The Function keys and keypad - Linux
+
+  Window:
+    Lines of scrollback - 5120
+  
+  Window --> Selection:
+    Action of mouse buttons - Windows (Middle extends, Right brings up menu)
+  
+  Connection:
+    Seconds between keepalives - 3
+
+
+Advanced PuTTY Settings:
+  Connection --> Data:
+    Auto-login username - root
+
+  Connection --> SSH --> Auth:
+    Private key file for authentication - C:\PATH\TO\PPK-FILE
