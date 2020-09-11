@@ -1,0 +1,42 @@
+Basic CentOS 7.x VM
+
+#!/bin/bash
+
+setenforce 0
+sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+systemctl stop firewalld.service  && systemctl disable firewalld.service
+sed -i 's/#UseDNS no/UseDNS no/' /etc/ssh/sshd_config
+yum clean all
+yum -y update
+yum -y install epel-release.noarch
+yum -y install bc htop iperf iperf3 lsof net-tools ntp open-vm-tools socat strace vim wget
+systemctl start ntpd.service
+systemctl enable ntpd.service
+yum -y groupinstall "Development Tools"
+yum -y install cifs-utils nfs-utils
+yum -y install samba samba-client samba-common
+
+## SAMBA CONFIGURATION
+##/etc/samba/smb.conf
+true > /etc/samba/smb.conf
+cat <<EOF >> /etc/samba/smb.conf
+[global]
+server signing = auto
+log file = /var/log/samba/log.%m
+max log size = 1024
+security = user
+passdb backend = tdbsam
+
+[root]
+path = /
+writeable = yes
+browseable = yes
+read only = no
+valid users = root
+create mask = 0755
+directory mask = 0755
+EOF
+
+systemctl start smb.service
+systemctl enable smb.service
+smbpasswd -a root
