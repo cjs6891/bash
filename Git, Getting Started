@@ -1,0 +1,184 @@
+Single Repository (i.e. needs to be set everytime you start a new project)
+$ git config user.name "<NAME>"
+$ git config user.email "<EMAIL ADDRESS>"
+
+Global Repositories (i.e. preset for all repositories, new or not)
+$ git config --global user.name "<NAME>"
+$ git config --global user.email "<EMAIL ADDRESS>"
+
+
+Carriage Return Setting:
+Windows
+$ git config --global core.autocrlf true
+
+Apple/Linux
+$ git config --global core.autocrlf input
+
+Initialize New (Empty) Git Repository
+$ git init <REPOSITORY NAME>
+
+$ git status
+
+$ git add
+
+$ git add .
+
+$ git commit -m "<MEANINGFUL MESSAGE>"
+
+$ git log
+
+$ git log -2
+
+$ git log --oneline
+
+$ git log --oneline -2
+
+$ git log --after="2019-01-01"
+
+$ git log --after="2019-01-01T08:00:00-5:00"
+
+$ git log --since="2 days ago"
+
+$ git log --since="1 week ago"
+
+$ git log --before="1 month ago"
+
+$ git log --author="<AUTHOR NAME>"
+
+$ git help log
+
+$ git checkout 92729d
+
+$ git checkout master
+
+Rename a File W/git
+$ git mv <FILENAME> <NEW-FILENAME>
+
+Delete a File W/git
+$ git rm <FILENAME>
+
+$ vim .gitignore
+
+$ git add .gitignore
+
+$ git commit -m "added .gitignore file"
+
+$ git diff --staged
+
+$ git diff 84042d9
+
+$ git diff 84042d9^
+
+$ git diff HEAD^
+
+See Difference Between Commits (Start W/oldest First)
+$ git diff 663c916..84042d9
+
+Edit Commit Message/Append Changes and/or Files To The Commit
+$ git commit --amend
+
+Edit Commit Message Using a Hash
+$ git rebase -i <HASH>
+
+  *Change "pick" to "reword", save and quit
+  *Update Commit Message in Editor
+
+Unstage a File
+$ git reset HEAD <FILENAME>
+
+Undo Changes to a File
+$ git checkout -- <FILENAME>
+
+Reset Files to Previous Commit, Before a Commit
+$ git reset HEAD --hard
+
+Reset Files to Previous Commit, After a Commit, i.e. a Bad Commit
+$ git reset HEAD^ --hard
+
+Reset Files to Previous Commit, Using the Hash
+$ git reset fa72393 --hard
+
+
+ - Development
+ - Staging (Test Environment)
+ - Production
+
+Branching
+
+$ git branch <FEATURE-NAME>
+$ git checkout <FEATURE-NAME>
+
+Create Branch and Checkout Single Command
+$ git checkout -b <FEATURE-NAME>
+
+$ git status
+  *verify HEAD has been moved to <FEATURE-NAME>
+
+Merge Branch(s)
+$ git checkout master
+$ git merge <FEATURE-NAME>
+
+  *Show git tree
+  $ git log --all --decorate --oneline --graph
+
+
+Delete Branch After Work is Complete
+$ git branch -d <FEATURE-NAME>
+
+
+Fixing Merge Conflict(s)
+$ git checkout master
+$ git merge <FEATURE-NAME>
+  *CONFLICT (content): Merge conflict in index.html
+  *Automatic merge failed; fix conflicts and then commit the result.
+
+$ git add <FILENAME>
+$ git commit -m "<MEANINGFUL MESSAGE>"
+
+*After the commit, the merger will finish
+
+$ git show-branch -a
+
+
+Rebasing
+
+$ git checkout <FEATURE-NAME>
+$ git rebase master
+
+Interactive Rebase
+rebase previous commit, the ~ sign denotes previous X commits
+$ git rebase -i HEAD~1
+
+Tagging, i.e. releases/version naming
+$ git tag version-1.00beta
+
+$ git tag
+
+ Delete Tag
+$ git tag -d version-1.00beta
+
+
+Remote Repositories
+$ git remote -v
+origin  git@github.com:<USERNAME>/<REPOSITORY>.git (fetch)
+origin  git@github.com:<USERNAME>/<REPOSITORY>.git (push)
+
+$ git push origin master
+
+ Pull Latest Changes
+$ git fetch origin
+$ git merge origin/master
+
+--OR--
+
+$ git pull origin
+
+
+Remote Repositories W/Branching
+
+$ git checkout -b <FEATURE-NAME>
+
+$ git push -u origin <FEATURE-NAME>
+
+ Delete Remote Branch 
+$ git push origin -d <FEATURE-NAME>
