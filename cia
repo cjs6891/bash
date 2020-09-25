@@ -1,0 +1,1078 @@
+Format HDD Ext4
+
+# mkfs.ext4 -L 2TBHDD-00 /dev/sdhj1
+
+mke2fs 1.41.12 (17-May-2010)
+Filesystem label=2TBHDD-00
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+122101760 inodes, 488378632 blocks
+24418931 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=4294967296
+14905 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        102400000, 214990848
+
+Writing inode tables: done
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+This filesystem will be automatically checked every 28 mounts or
+180 days, whichever comes first.  Use tune2fs -c or -i to override.
+
+- - - - -
+
+List Installed Packages by Package Name Only
+
+# rpm -qa --qf "%{NAME}\n"
+
+- - - - -
+
+List Installed Packages W/YUM
+
+# yum list installed
+
+- - - - -
+
+Get a List of Perl Modules Installed on Your System
+
+# instmodsh
+Available commands are:
+   l            - List all installed modules
+   m <module>   - Select a module
+   q            - Quit the program
+cmd? l
+Installed modules are:
+   Algorithm::Diff
+   Apache::DBI
+   B::Hooks::EndOfScope
+   B::Hooks::OP::Check
+   CAM::PDF
+   .....
+   ....
+   ...
+   ..
+   .
+
+- - - - -
+
+
+Linux, Forced Reset of Passwords for Users
+
+# chage -d 0 cjs
+
+- - - - -
+
+
+Linux, Generate Random Passwords
+
+# head -c 18 /dev/urandom | base64
+x5dkAMKaN+MzuDCTjMes0rxL
+
+ - - - - - 
+
+Test unixODBC W/isql -> iSeries
+
+isql -v AS400 username password
+          ^
+          |
+          |__ Driver Name "/etc/odbc.ini"
+
+"/etc/odbc.ini"
+[AS400]
+Description = iSeries Access ODBC Driver DSN for iSeries
+Driver = iSeries Access ODBC Driver 64-bit
+System = 192.168.1.10
+UID =
+PWD =
+Naming = 0
+DefaultLibraries = PAPPDTA
+Database = PAPPDTA
+ConnectionType = 0
+CommitMode = 2
+ExtendedDynamic = 0
+DefaultPkgLibrary = QGPL
+DefaultPackage = A/DEFAULT(IBM),2,0,1,0,512
+AllowDataCompression = 1
+LibraryView = 0
+AllowUnsupportedChar = 0
+ForceTranslation = 1
+Trace = 0
+
+ - - - - - 
+
+To free pagecache:
+echo 1 > /proc/sys/vm/drop_caches
+
+To free dentries and inodes:
+echo 2 > /proc/sys/vm/drop_caches
+
+To free pagecache, dentries and inodes:
+echo 3 > /proc/sys/vm/drop_caches
+
+As this is a non-destructive operation, and dirty objects are not freeable, the user should run "sync" first in order to make sure all cached objects are freed.
+
+sync && echo 3 > /proc/sys/vm/drop_caches
+
+ - - - - - 
+
+MultiTail
+
+MultiTail lets you view one or multiple files like the original 'tail -f'
+
+horizontally view '/var/log/secure' & /var/log/messages in same console
+
+# multitail -i /var/log/secure -i /var/log/messages
+
+vertically view '/var/log/secure' & /var/log/messages in same console 
+
+# multitail -s 2 -i /var/log/secure -i /var/log/messages
+
+ - - - - -
+
+write - send a message to another user
+
+# write user [ttyname]
+# write pkm pts/0
+
+CTRL+D to EOF
+
+ - - - - -
+
+Monitor Folder W/Robocopy M$ Windows
+
+robocopy /E /MON:1 C:\Users\root\Desktop\00 C:\Users\root\Desktop\01
+
+ - - - - - 
+
+SED Work...
+
+Remove All Except Digits, Lower & Upper A-Z (Including Space i.e. space is also removed)
+sed "s/[^0-9|a-z|A-Z]*//g" file1 | less
+  - or -
+
+sed "s/[^0-9|a-z|A-Z]*//g" file1 > file2
+
+ - - - - - 
+
+Remove All Except Digits, Lower & Upper A-Z (Excluding Space i.e. results still include space)
+sed "s/[^0-9|a-z|A-Z| ]*//g" file1 | less
+
+  - or -
+
+sed "s/[^0-9|a-z|A-Z| ]*//g" file1 > file2
+
+- - - - - 
+
+tac - concatenate and print files in reverse
+
+    # tac filename | less
+
+ - - - - - 
+
+Linux... Generate Random W/Special Characters
+
+ # cat /dev/urandom| tr -dc 'a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='|fold -w 12| head -n 10| grep -i '[!@#$%^&*()_+{}|:<>?=]'
+                                                                      ^            ^
+                                                                      |            |
+                                                                Character Count    |
+                                                                                   |
+                                                                              Number of Lines
+
+- - - - -
+
+Linux BASH - Comparison Operators
+
+ Integer Comparison Operators
+Operator  Description Example
+-eq Is Equal To if [ $1 -eq 200 ]
+-ne Is Not Equal To if [ $1 -ne 1 ]
+-gt Is Greater Than if [ $1 -gt 15 ]
+-ge Is Greater Than Or Equal To if [ $1 -ge 10 ]
+-lt Is Less Than  if [ $1 -lt 5 ]
+-le Is Less Than Or Equal To  if [ $1 -le 0 ]
+==  Is Equal To if (( $1 == $2 )) [Note: Used within double parentheses]
+!=  Is Not Equal To if (( $1 != $2 ))
+< Is Less Than  if (( $1 < $2 ))
+<=  Is Less Than Or Equal To  if (( $1 <= $2 ))
+> Is Greater Than if (( $1 > $2 ))
+>=  Is Greater Than Or Equal To if (( $1 >= $2 ))
+
+ String Comparison Operators
+Operator  Description Example
+= or == Is Equal To if [ "$1" == "$2" ]
+!=  Is Not Equal To if [ "$1" != "$2" ]
+> Is Greater Than (ASCII comparison)  if [ "$1" > "$2" ]
+>=  Is Greater Than Or Equal To if [ "$1" >= "$2" ]
+< Is Less Than  if [ "$1" < "$2" ]
+<=  Is Less Than Or Equal To  if [ "$1" <= "$2" ]
+-n  Is Not Null if [ -n "$1" ]
+-z  Is Null (Zero Length String)  if [ -z "$1"]
+
+ - - - - - 
+
+TCPDUMP
+
+Packets From XXX.XXX.XXX.XXX
+# tcpdump -vvv -n src host XXX.XXX.XXX.XXX -i eth2 -w /tmp/XXX.XXX.XXX.XXX.cap
+
+Packets To XXX.XXX.XXX.XXX
+# tcpdump -vvv -n dst host XXX.XXX.XXX.XXX -i eth2 -w /tmp/XXX.XXX.XXX.XXX.cap
+
+ - - - - -
+
+Kill Multiple PIDs of same process, example workqueue
+
+kill -9 `ps aux | grep -E 'httpd' | grep -v grep | awk '{print $2}'`
+
+ - - - - - 
+
+Strace all HTTPD PIDs
+
+ # strace $(pidof httpd | sed 's/\([0-9]*\)/\-p \1/g')
+
+ - - - - - 
+
+Find IP Address from PID
+
+# lsof -p PID | grep -E 'TCP'
+
+# lsof -p 5793 | grep -E 'TCP'
+smbd    5793 root   32u  IPv4 131005951      0t0        TCP 192.168.1.31:microsoft-ds->192.168.1.81:49288 (ESTABLISHED)
+
+ - - - - - - 
+
+http/(s) DoS "Check"
+
+# /bin/netstat -ntu | /bin/awk '{print $4", "$5}' | /bin/grep -E ':80,|:443' | /bin/awk -F ', ' '{print $2}' | /bin/awk -F ':' '{print $1}' | /bin/sort | /usr/bin/uniq -c | /bin/sort -nr | /usr/bin/head -n25
+
+ - - - - - 
+
+RegExp for RFC-1918 Private IPs
+
+^127\.0\.0\.1
+^10\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))
+^172\.(1[6-9]|2[0-9]|3[0-1])\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))
+^192\.168\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))\.([0-9]|[1-9][0-9]|1([0-9][0-9])|2([0-4][0-9]|5[0-5]))
+
+Fibertech IP Block(s)
+^173\.225\.61\.(2(2[4-9]|[3-4][0-9]|5[0-5]))
+^173\.225\.61\.(1[6-9]|2[0-9]|3[0-1])
+
+ - - - - - 
+
+Stress Test Memory (RAM) W/ '/usr/bin/stress'
+
+Utilize 75% of FREE Memory
+# stress --vm-bytes $(awk '/MemFree/{printf "%d\n", $2 * 0.75;}' < /proc/meminfo)k --vm-keep -m 1
+
+Utilize 75% of Total Memory
+# stress --vm-bytes $(awk '/MemTotal/{printf "%d\n", $2 * 0.75;}' < /proc/meminfo)k --vm-keep -m 1
+
+ - - - - - 
+
+awk Round UP Decimal
+/bin/awk '{printf("%d\n",$1 + 0.5)}'
+
+ - - - - - 
+
+CrushFTP MySQL Dump...
+
+append '[mysqldump]' section to '/etc/my.cnf'
+
+[mysqldump]
+user=root
+password=PASSWORD
+
+
+Specific Database:
+/usr/bin/mysqldump CrushFTP_User > /tmp/CrushFTP_User-$(/bin/date '+%Y.%m.%d').sql -u root
+                          |
+                          --> Database Name
+
+All Databases:
+/usr/bin/mysqldump --all-databases > /tmp/CrushFTP-$(/bin/date '+%Y.%m.%d').sql -u root
+
+*** RANDOM CrushFTP Information ***
+
+CrushFTP_User
+u. CrushFTP
+p. Fvr7SfGTWZnQFvaz
+
+ - - - - -
+
+CrushFTP MySQL Nightly Dump CRON Job
+
+0 1 * * * /usr/bin/mysqldump --all-databases > /var/log/CrushFTP/MySQL_Dump/CrushFTP-$(/bin/date '+%Y.%m.%d').sql -u root
+
+ - - - - - 
+
+Paul M. Request:
+
+Kill all find processes...
+# kill -9 `ps aux | grep -v grep | grep -E 'find' | awk '{print $2}'`
+
+Kill all chown processes...
+# kill -9 `ps aux | grep -v grep | grep -E 'chown' | awk '{print $2}'`
+
+Kill all chmod processes...
+# kill -9 `ps aux | grep -v grep | grep -E 'chmod' | awk '{print $2}'`
+
+ - - - - - 
+
+TOP - Batch mode, Displays just active tasks, Detect memory units, Delay time interval, Number of iterations, Command Line (FULL Command)
+
+Note: 
+-d : Delay time interval as:  -d ss.tt (seconds.tenths)
+            Specifies the delay between screen updates, and overrides the corresponding value in one’s personal  configuration file or the startup default.  
+
+BATCH MODE (i.e send to file > output.txt)
+# /usr/bin/top -bi -M -d1 -n10 -c
+
+ - - - - - 
+
+'Swappiness'
+
+# echo 1 > /proc/sys/vm/swappiness
+
+persistently set
+'/etc/sysctl.conf'
+vm.swappiness = 1
+
+ - - - - - 
+
+CRASH Kernel
+
+https://www.kernel.org/doc/Documentation/sysrq.txt
+
+echo c > /proc/sysrq-trigger
+
+/usr/bin/echo c > /proc/sysrq-trigger
+
+ - - - - - 
+
+Generate 10 "RANDOM" Files 1MB in Size
+
+# for i in {1..10}; do dd if=/dev/urandom of=/home/random$i.txt bs=1M count=1; done
+
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random1.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random2.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random3.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random4.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random5.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random6.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random7.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random8.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random9.txt
+-rw-r--r--   1 root root  1.0M Oct 29 14:43 random10.txt
+
+ - - - - - 
+
+rsync via SSH
+
+Example
+From Source Server to Destination Server
+
+                                                                                   ----------------DST
+                                        ----------------SRC                                         |
+                                                         |                                          |
+# /usr/bin/rsync -avz -e ssh --progress /root/System_Administration/WorkInProgress/rsyncSRC/ root@192.168.1.44:/root/System_Administration/rsyncDST/
+ 
+ - - - - - 
+
+Troubleshooting '/etc/mail/sendmail.mc'
+
+Define SMART HOST
+
+#dnl define(`SMART_HOST', `smtp.your.provider')dnl
+define(`SMART_HOST', `[192.168.1.1]')
+
+ - - - - - 
+
+Exchange Server 2013, Get Version
+
+To view the build number for the version of Exchange 2013 that you’re running, run the following command in the Exchange Management Shell
+
+Get-ExchangeServer | Format-List Name, Edition, AdminDisplayVersion
+
+ - - - - - 
+
+RedHat, Manually Attaching and Removing Subscriptions through the Command Line
+
+*Attaching Subscriptions
+
+# subscription-manager list --available
+# subscription-manager attach --pool=XXXXXXXXXXXXXXXXXXXXXXXX
+
+*Removing Subscriptions from the Command Line
+
+# subscription-manager remove --all
+# subscription-manager list --consumed
+
+ - - - - - 
+
+reload .bashrc -or- .bash_profile W/O logging out & in
+
+source ~/.bashrc
+
+ -or-
+
+. ~/.bashrc
+
+ - - - - - 
+
+Find PIDs by PORT NUMBER
+
+netstat -nlp | grep :80
+
+ -or- 
+
+lsof -i :80 | grep LISTEN
+
+ - - - - - 
+
+WGET, Local Copy of Web Page
+
+wget -p -k http://www.google.com
+
+ - - - - - 
+
+Ubuntu - Recover Deleted Files With Scalpel
+
+http://www.linux-magazine.com/Online/Features/Recovering-Deleted-Files-with-Scalpel
+
+# apt-get install scalpel
+
+EDIT (define file types): /etc/scalpel/scalpel.conf
+
+# scalpel /dev/sdb1 -o /tmp/RESTORE
+
+ - 
+
+Find SCALPEL File Header Example
+
+# hexdump -C -n 20 DaysInMonth.sh
+00000000  23 21 2f 62 69 6e 2f 62  61 73 68 0a 0a 53 74 61  |#!/bin/bash..Sta|
+00000010  72 74 44 61                                       |rtDa|
+00000014
+
+\x23\x21\x2f\x62\x69\x6e\x2f\x62\x61\x73\x68\x0a\x0a\x53\x74\x61\x72\x74\x44\x61
+
+scalpel.conf NOTE(s):
+The “y” indicates whether Scalpel distinguishes between uppercase and lowercase in the header and footer. This is followed by the minimum and maximum file size(s) in bytes. Finally, the header is given.
+
+EXAMPLE:
+bash     y     1000000     \x23\x21\x2f\x62\x69\x6e\x2f\x62\x61\x73\x68\x0a\x0a\x53\x74\x61\x72\x74\x44\x61
+
+ - - - - - 
+
+SORT Example:
+
+Sort log based on forth column
+
+# /bin/cat usherbrooke.ca-2016-01.txt | /bin/sort -k 4,4 | less
+
+ - - - - - 
+
+Use "tr" FOR CHARACTER REPLACEMENT
+
+REPLACE "(" With "[" & ")" With "]"
+
+# /bin/echo "(23 + 5)*2" | /usr/bin/tr "(" "[" | tr ")" "]"
+[23 + 5]*2
+
+ - - - - - 
+
+Exchange 2013 Shell, Delete Email(s) W/Subject from Administrator Inbox
+
+Note: Deletes 10,000 at a time
+
+Search-Mailbox -Identity "Administrator" -SearchQuery 'Subject:"InRow"' -DeleteContent
+
+ - - - - - 
+
+Galera Cluster for MySQL
+
+VMware: 192.168.0.220
+MySQL 5.6 Cluster, Server(s): MySQL-01 (0.221), MySQL-02 (0.222), MySQL-03 (0.223)
+
+http://galeracluster.com/downloads/
+
+Note(s):
+
+Start Cluster
+# /etc/init.d/mysql start --wsrep-new-cluster
+
+ - -
+
+ENGINE=InnoDB
+
+ Example: 
+mysql> ALTER TABLE heinonline.titles ENGINE=InnoDB;
+
+ - - - - - 
+
+sha256sum
+
+# sha256sum * > shasum.txt
+
+# find myFolder -type f | xargs sha256sum >  shasum.txt
+
+# find . -type f | xargs sha256sum >  shasum.txt
+
+# find . -type f -name "*.wav" | xargs sha256sum >  shasum.txt
+
+if you have filenames with newlines or strange things, you can use -print0:
+# find . -type f -print0 | xargs -0 sha256sum >  shasum.txt
+
+ - - - - - 
+
+Manually Install Perl Module Downloaded From CPAN
+
+http://stackoverflow.com/questions/7541019/manual-installation-of-a-perl-module
+
+# tar -xvf Digest-SHA1-2.13.tar.gz
+# cd Digest-SHA1-2.13
+# perl Makefile.PL
+# make
+# make test
+# make install
+
+ - - - - - 
+
+Windows, Delete Cached SMB Username(s)/Password(s)
+
+C:\> net use * /d
+
+ - - - - - 
+
+Linux time command
+
+# yum install time.x86_64
+
+# /usr/bin/time -f 'Real Time: %E\n User CPU-Seconds: %U\n System CPU-Seconds: %S\n I/O: %I\n Number of Waits: %w'
+
+output:
+
+Real Time: 0:00.89
+ User CPU-Seconds: 0.01
+ System CPU-Seconds: 0.09
+ I/O: 13376
+ Number of Waits: 1569
+
+ - - - - - 
+
+vgs ERROR, Device mismatch
+
+# vgs
+  WARNING: Device mismatch detected for CS460G-01-SAN046/CS460G-01-SAN046 which is accessing /dev/dm-4 instead of /dev/mapper/2ee34a9d8947c64116c9ce900af424b09.
+
+# dmsetup ls
+
+# dmsetup remove_all
+
+# dmsetup ls
+
+# dmsetup status
+
+Activate Logical Volume
+# vgchange -a y <name of volume group>
+
+ - - - - - 
+
+vim
+add text to the beginning of every line
+:%s/^/texttoadd/
+
+ - - - - - 
+
+bash: "Argument list too long"
+-bash: /bin/rm: Argument list too long
+
+find . is recursive, be sure to specify maxdepth
+
+# find . -maxdepth 1 -name "*.txt" -print0 | xargs -0 rm
+
+ - - - - - 
+
+RSYNC
+
+copy the folder source_dir AND its content into destination_dir
+# rsync -av source_dir destination_dir
+
+copy the contents of source_dir/ (trailing slash) into destination_dir
+# rsync -av source_dir/ destination_dir
+
+ - - - - - 
+
+Simple Way To Find Largest Folders Under "/" or ANY Directory
+
+* This is the easiest method I have found to date to find large files!
+https://serverfault.com/questions/275206/disk-full-du-tells-different-how-to-further-investigate
+
+# ls | xargs du -hs
+
+ - - - - - 
+
+Find Empty Folders Current Directory
+
+# find . -type d -empty
+
+ - - - - - 
+
+List all DNS records in a domain w/dig
+
+# dig wshein.com ANY
+
+; <<>> DiG 9.8.2rc1-RedHat-9.8.2-0.62.rc1.el6_9.4 <<>> wshein.com ANY
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 12967
+;; flags: qr rd ra; QUERY: 1, ANSWER: 10, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;wshein.com.                    IN      ANY
+
+;; ANSWER SECTION:
+wshein.com.             21599   IN      SOA     a1.verisigndns.com. mdnshelp.verisign.com. 1430422312 28800 7200 1209600 86400
+wshein.com.             21599   IN      NS      u3.verisigndns.com.
+wshein.com.             21599   IN      NS      u2.verisigndns.com.
+wshein.com.             21599   IN      NS      u1.verisigndns.com.
+wshein.com.             21599   IN      NS      a3.verisigndns.com.
+wshein.com.             21599   IN      NS      a2.verisigndns.com.
+wshein.com.             21599   IN      NS      a1.verisigndns.com.
+wshein.com.             21599   IN      A       173.225.61.231
+wshein.com.             21599   IN      MX      10 mail.wshein.com.
+wshein.com.             10799   IN      TXT     "v=spf1 include:servers.mcsv.net ?all"
+
+ - - - - - 
+
+Exchange 2013
+Find ALL Email Addresses on Server
+Exchange Power-Shell
+
+Get-Recipient | Select Name -ExpandProperty EmailAddresses | Out-File C:\EmailAddressesOutput.txt
+
+ - - - - - 
+
+Exchange 2013
+Delete Emails W/Specific Text In Body (Specific Email Address, cjs@wshein.com)
+
+Search-Mailbox -Identity "cjs@wshein.com" -SearchQuery '"77.72.85.7"' -DeleteContent
+
+ - - - - - 
+
+screen command
+
+start screen
+$ screen
+
+prints a list of screen sessions
+$ screen -list
+
+reattach to screen
+$ screen -r 27472
+
+ - - - - - 
+
+Linux, View Ram Speed and Type
+
+# dmidecode --type memory
+
+https://www.cyberciti.biz/faq/check-ram-size-from-desktop-redhat/
+
+ - - - - - 
+
+rsync, all file(s)/folder(s) starting W/letter
+
+# rsync -av --include="a*" --include="A*" --exclude="*" src dst
+
+ - - - - - 
+
+Rescanning devices with the DM-MP multipath driver
+https://library.netapp.com/ecmdocs/ECMP12404601/html/GUID-1D68ADC5-6A45-4C0A-A526-1B421F5E1580.html
+
+# rescan-scsi-bus.sh -m
+ - Scan for new SCSI devices, and then attempt to create multipath devices.
+
+
+# rescan-scsi-bus.sh -m -u
+ - Search for remapped SCSI devices, remove the old multipath device, and then create a new multipath device.
+
+
+# rescan-scsi-bus.sh -m -s
+ -  Search for resized SCSI devices, and then update the multipath device size.
+
+
+# rescan-scsi-bus.sh -m -r
+ - Search for unmapped SCSI devices, and then delete both the devices and their associated multipath device.
+
+ - - - - - 
+
+Exchange 2013, Show SMTP Alias
+
+[PS] C:\Windows\system32>Get-Recipient | Select Name -ExpandProperty EmailAddresses | Select Name,  SmtpAddress | more
+
+ - - - - - 
+
+nc, send udp traffic
+
+# nc -u 192.168.X.X 161 < /dev/urandom
+
+ - - - - - 
+
+random dd stuff...
+
+WRITE - 1TB
+/bin/sync && /bin/echo 3 > /proc/sys/vm/drop_caches && dd if=/dev/zero of=./balloonfile bs=1M count=1024000
+
+/bin/sync && /bin/echo 3 > /proc/sys/vm/drop_caches && dd if=/dev/zero of=./balloonfile_alfa bs=1M count=1024000
+
+/bin/sync && /bin/echo 3 > /proc/sys/vm/drop_caches && dd if=/dev/zero of=./balloonfile_bravo bs=1M count=1024000
+
+READ - 1TB
+/bin/sync && /bin/echo 3 > /proc/sys/vm/drop_caches && dd if=./balloonfile of=/dev/null bs=1M count=1024000
+
+/bin/sync && /bin/echo 3 > /proc/sys/vm/drop_caches && dd if=./balloonfile_alfa of=/dev/null bs=1M count=1024000
+
+/bin/sync && /bin/echo 3 > /proc/sys/vm/drop_caches && dd if=./balloonfile_bravo of=/dev/null bs=1M count=1024000
+
+ - - - - - 
+
+File Server Migration W/Robocopy
+
+robocopy \\source_share\folder \\destination_share\folder /E /V /ZB /R:1 /W:1 /NP /COPYALL /LOG:c:\robocopy.log
+
+Explanation:
+
+/E - copy subdirectories, including Empty ones.
+/V - produce Verbose output, showing skipped files.
+/ZB - use restartable mode; if access denied use Backup mode.
+/R:1 - number of Retries on failed copies
+/W:1 - Wait time between retries: default is 30 seconds
+/NP - No Progress - don't display percentage copied. 
+/COPYALL - COPY ALL file info (equivalent to /COPY: DATSOU)
+/LOG - LOG location
+
+After the initial sync you can use the following command to copy only the changes:
+
+robocopy \\source_share\folder \\destination_share\folder /MIR /V /ZB /R:5 /W:5 /NP /COPYALL /LOG:c:\robocopy.log
+
+Explanation:
+
+/MIR - MIRror a directory tree (equivalent to /E plus /PURGE).
+
+Datacove SAN Volume Migration
+Base Copy:
+robocopy z:\ y:\ /E /V /ZB /R:1 /W:1 /NP /MT:24 /COPYALL /LOG:n:\datacove1.log
+
+2nd Copy, i.e. sync
+robocopy z:\ y:\ /MIR /V /ZB /R:3 /W:3 /NP /MT:24 /COPYALL /LOG:n:\datacove2.log
+
+ - - - - - 
+
+nload
+
+# nload devices eth0 -u m -t 1000
+
+ - - - - - 
+
+HDD Testing Tools...
+
+https://linux.die.net/man/8/bonnie++
+
+-vs-
+
+https://linux.die.net/man/1/fio
+
+ - - - - - 
+
+Windows, Delete Cached SMB Username(s)/Password(s)
+samba
+
+C:\> net use * /d
+
+Specific SMB Connection
+C:\> net use \\192.168.1.27\IPC$ /d
+
+*Windows Explorer Might Need a Rstart
+
+ - - - - - 
+
+top/htop by user
+
+# htop -u production
+# top -u production
+
+ - - - - - 
+
+Exchange 2013, List all mailboxes a user has access to
+
+[PS] C:\Windows\system32> Get-Mailbox | Get-MailboxPermission -User smarmion@wshein.com | fl
+
+ - - - - - 
+
+PsExec - Execute Remote CMD's ON LIST OF COMPUTERS
+
+C:\SysinternalsSuite>C:\SysinternalsSuite\PsExec.exe @C:\Users\Administrator.COM
+MSERV\Desktop\computers.txt taskkill /IM "outlook.exe" /F
+
+PsExec v1.98 - Execute processes remotely
+Copyright (C) 2001-2010 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+\\WSH-2528:
+
+SUCCESS: The process "OUTLOOK.EXE" with PID 7584 has been terminated.
+taskkill exited on WSH-2528 with error code 0.
+
+Example 2, FlushDNS ON LIST OF COMPUTERS
+
+C:\>C:\SysinternalsSuite\PsExec.exe @C:\Users\Administrator.COM
+MSERV\Desktop\computers.txt ipconfig /flushdns
+
+ - - - - - 
+
+PuTTY Settings, Export Registry Key
+
+regedit /e "%USERPROFILE%\Desktop\PuTTY.reg" HKEY_CURRENT_USER\Software\SimonTatham
+
+ - - - - - 
+
+MySQL, All Tables By Engine
+
+ - MyISAM Engine
+SELECT TABLE_SCHEMA as DbName ,TABLE_NAME as TableName ,ENGINE as Engine 
+FROM information_schema.TABLES 
+WHERE ENGINE = 'MyISAM'
+AND TABLE_SCHEMA NOT IN('mysql','information_schema','performance_schema');
+
+ - - - - - 
+
+ - Innodb Engine
+SELECT TABLE_SCHEMA as DbName ,TABLE_NAME as TableName ,ENGINE as Engine 
+FROM information_schema.TABLES 
+WHERE ENGINE = 'Innodb'
+AND TABLE_SCHEMA NOT IN('mysql','information_schema','performance_schema');
+
+ - - - - - 
+
+ioping - simple disk I/O latency monitoring tool
+
+# ioping -c 10 .
+
+# ioping -DqW -c 10 .
+
+ - - - - - 
+
+DD Testing...
+
+WRITE
+dd if=/dev/zero of=./balloonfile bs=1M count=1024 oflag=dsync
+
+
+READ
+/bin/echo 3 > /proc/sys/vm/drop_caches && dd if=./balloonfile of=/dev/null bs=1M count=1024
+
+ - - - - - 
+
+Remove Everything BUT Letters From File W/sed
+
+# sed 's/[^a-zA-Z]/ /g' filename
+
+Remove ALL Whitespace W/Sed
+# sed 's/ //g' filename1 > filename2
+
+ - - - - - 
+
+Change HTTPD 2.4 Processing Module
+*Default/Base Install is mpm_prefork_module modules/mod_mpm_prefork.so
+
+/etc/httpd/conf.modules.d/00-mpm.conf
+
+# prefork MPM: Implements a non-threaded, pre-forking web server
+# See: http://httpd.apache.org/docs/2.4/mod/prefork.html
+LoadModule mpm_prefork_module modules/mod_mpm_prefork.so
+
+# worker MPM: Multi-Processing Module implementing a hybrid
+# multi-threaded multi-process web server
+# See: http://httpd.apache.org/docs/2.4/mod/worker.html
+#
+#LoadModule mpm_worker_module modules/mod_mpm_worker.so
+
+# event MPM: A variant of the worker MPM with the goal of consuming
+# threads only for connections with active processing
+# See: http://httpd.apache.org/docs/2.4/mod/event.html
+#
+#LoadModule mpm_event_module modules/mod_mpm_event.so
+
+ - - - - - 
+
+Exchange 2013 - Update-StoreMailboxState
+** i.e. re-connect a disconnected/disabled mailbox ASAP, without waiting for the automatic Active Directory synchronization 
+
+https://docs.microsoft.com/en-us/powershell/module/exchange/mailbox-databases-and-servers/Update-StoreMailboxState?redirectedfrom=MSDN&view=exchange-ps
+
+Get-MailboxStatistics -Database "Exchange 2013 SP1" | ForEach { Update-StoreMailboxState -Database $_.Database -Identity $_.MailboxGuid -Confirm:$false }
+
+ - - - - - 
+
+grep using OR reference, use "\|" as 
+
+# grep -hE "iii" 2019-06-* | grep -E "\/iii\/"\|"\.iii\." > 2019-06-iii.txt
+
+ - - - - - 
+
+find, exclude directory, example: .snapshot directory
+
+find . -path "./.snapshot" -prune -o -print
+
+Example:
+find on volume /HOL/SAN001, excluding .snapshot directory
+
+find . -path "./.snapshot" -prune -o -print > /root/System_Administration/SAN001.txt
+
+sort /root/System_Administration/SAN001.txt > /root/System_Administration/SAN001-SORTED.txt
+
+ - - - - - 
+
+Update WordPress Site Address W/wp-cli.phar
+
+php wp-cli.phar --allow-root search-replace 'http://hbtcenter.com/' 'https://hbtcenter.com/'
+
+php wp-cli.phar --allow-root search-replace 'http://churchonthebeach.ca' 'https://churchonthebeach.ca'
+
+ - - - - - 
+
+*CloneZilla restore to smaller HDD, boot issue
+*Fix Windows 10 BOOT Issues
+
+C:\> sfc /scannow
+
+C:\> bootrec /fixmbr
+C:\> bootrec /fixboot
+C:\> bootrec /rebuildbcd
+
+ - - - - - 
+
+Capture MySQL FULL PROCESSLIST output every 10 seconds
+
+# watch -n10 'date --iso-8601=seconds >> output.txt && mysql -s -e "SHOW FULL PROCESSLIST;" | cat -n >> output.txt'
+
+
+Unique File For Every Timestamp, example: 2020-04-29T17:12:32-0400.txt
+
+# watch -n10 'x=$(date --iso-8601=seconds); echo $x > $x.txt && mysql -s -e "SHOW FULL PROCESSLIST;" | cat -n >> $x.txt'
+
+ - - - - - 
+
+2020.04.24, *.wshein.com wildcard certificate CSR
+
+# mkdir STAR_WSHEIN.COM-2020-04 && cd STAR_WSHEIN.COM-2020-04
+
+# openssl genrsa -out wshein.com.key 4096
+
+# openssl req -new -sha256 -key wshein.com.key -out ./wshein.com.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:US
+State or Province Name (full name) []:New York
+Locality Name (eg, city) [Default City]:Getzville
+Organization Name (eg, company) [Default Company Ltd]:William S. Hein & Co., Inc.
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server's hostname) []:*.wshein.com
+Email Address []:administrator@wshein.com
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+
+ - - - - - 
+
+2020.05.01, *.heinonline.org wildcard certificate CSR
+
+# mkdir STAR_HEINONLINE.ORG-2020-05 && cd STAR_HEINONLINE.ORG-2020-05
+
+# openssl genrsa -out heinonline.org.key 4096
+
+# openssl req -new -sha256 -key heinonline.org.key -out ./heinonline.org.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:US
+State or Province Name (full name) []:New York
+Locality Name (eg, city) [Default City]:Getzville
+Organization Name (eg, company) [Default Company Ltd]:William S. Hein & Co., Inc.
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server's hostname) []:*.heinonline.org
+Email Address []:administrator@wshein.com
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+ - - - - - 
+
+2020.05.04
+
+Generate pkcs12 Certificate Using STAR.WSHEIN.COM.crt (OpenSSL/Apache .crt File)
+
+# openssl pkcs12 -export -out STAR.WSHEIN.COM.pfx -inkey ../wshein.com.key -in STAR.WSHEIN.COM.crt -certfile OV_Chain.crt
+Enter Export Password:
+Verifying - Enter Export Password:
+
+*SonicWALL Requires a Certificate Password (root passwd used), M$ Exchange Doesn't, CrushFTP Doesn't
+*Two STAR.WSHEIN.COM.pfx exist, one W/passwd and one W/O passwd
+
+ - - - - - 
+
+View Outlook.msg File via Linux CLI
+
+# strings SmartCILP-June222020.msg | less
+
+ - - - - - 
+
+Map Printers via Script
+
+REM the /q makes the command run quietly
+
+REM Remember to replace \\machine\printer with the path to your shared printer - machine is the print server, printer is the share name of the printer on the that print server
+
+REM PrinterDriver needs to be replaced with the name of the printer driver
+
+REM Quietly install a network printer - per user
+rundll32 printui.dll,PrintUIEntry /q /in /n "\\machine\printer"
+
+REM Quietly delete a named network printer - per user
+rundll32 printui.dll,PrintUIEntry /q /dn /n "\\machine\printe"
+
+REM Set default printer
+rundll32 printui.dll,PrintUIEntry /y /n "\\machine\printer"
+
+REM Quietly install a network printer - per machine
+rundll32 printui.dll PrintUIEntry /q /ga /n "\\machine\printer"
+
+REM Quietly delete a network printer - per machine
+rundll32 printui.dll PrintUIEntry /q /gd /n "\\machine\printer"
+
+REM Quietly delete a specific printer driver
+rundll32 printui.dll,PrintUIEntry /q /dd /m "PrinterDriver"
