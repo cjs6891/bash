@@ -1,3 +1,18 @@
+Extract .rpm File:
+
+# rpm2cpio <FILE NAME>.rpm | cpio -idmv
+
+Example: 
+
+# rpm2cpio sos-3.9-4.el7_9.noarch.rpm | cpio -idmv
+
+-i = extract
+-d = make directories
+-m = preserve modification time
+-v = verbose
+
+ - - - - - 
+
 Format HDD Ext4
 
 # mkfs.ext4 -L 2TBHDD-00 /dev/sdhj1
