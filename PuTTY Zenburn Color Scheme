@@ -7,13 +7,13 @@ PuTTY RGB Colors
     ANSI Yellow - 240/230/140
     ANSI Blue - 205/133/63
     ANSI Blue Bold -135/206/235
-    ANSI Magenta - 255/222/173 or 205/92/92
+    ANSI Magenta - 205/92/92
     ANSI Cyan - 255/160/160
     ANSI Cyan Bold - 255/215/0
     ANSI White - 245/222/179
 
   Window --> Appearance:
-    Font - Consolas, 10-point/12-point
+    Font - Consolas, 12-point/14-point
     
  - - - - - - - - - - 
 
