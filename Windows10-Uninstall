@@ -1,40 +1,42 @@
 Uninstall and Remove All Built-in Apps in Windows 10
 
-https://www.askvg.com/guide-how-to-remove-all-built-in-apps-in-windows-10/#:~:text=Now%20press%20Ctrl%2BShift%2BEnter,%22Run%20as%20Administrator%22%20option.&text=You%20can%20take%20help%20of,in%20apps%20in%20Windows%2010.
+https://www.askvg.com/guide-how-to-remove-all-built-in-apps-in-windows-10/
 
+Built-In APPs
+PS C:\Windows\system32> Get-AppxPackage -AllUsers | Select Name, PackageFullName
 
-get-appxpackage -allusers *3dbuilder* | remove-appxpackage
-get-appxpackage -allusers *appconnector* | remove-appxpackage
-get-appxpackage -allusers *appinstaller* | remove-appxpackage
-get-appxpackage -allusers *communicationsapps* | remove-appxpackage
-get-appxpackage -allusers *camera* | remove-appxpackage
-get-appxpackage -allusers *feedback* | remove-appxpackage
-get-appxpackage -allusers *officehub* | remove-appxpackage
-get-appxpackage -allusers *getstarted* | remove-appxpackage
-get-appxpackage -allusers *skypeapp* | remove-appxpackage
-get-appxpackage -allusers *zunemusic* | remove-appxpackage
-get-appxpackage -allusers *zune* | remove-appxpackage
-get-appxpackage -allusers *maps* | remove-appxpackage
-get-appxpackage -allusers *messaging* | remove-appxpackage
-get-appxpackage -allusers *solitaire* | remove-appxpackage
-get-appxpackage -allusers *wallet* | remove-appxpackage
-get-appxpackage -allusers *connectivitystore* | remove-appxpackage
-get-appxpackage -allusers *bingfinance* | remove-appxpackage
-get-appxpackage -allusers *bing* | remove-appxpackage
-get-appxpackage -allusers *zunevideo* | remove-appxpackage
-get-appxpackage -allusers *bingnews* | remove-appxpackage
-get-appxpackage -allusers *onenote* | remove-appxpackage
-get-appxpackage -allusers *oneconnect* | remove-appxpackage
-get-appxpackage -allusers *mspaint* | remove-appxpackage
-get-appxpackage -allusers *people* | remove-appxpackage
-get-appxpackage -allusers *commsphone* | remove-appxpackage
-get-appxpackage -allusers *windowsphone* | remove-appxpackage
-get-appxpackage -allusers *phone* | remove-appxpackage
-get-appxpackage -allusers *photos* | remove-appxpackage
-get-appxpackage -allusers *bingsports* | remove-appxpackage
-get-appxpackage -allusers *sway* | remove-appxpackage
-get-appxpackage -allusers *3d* | remove-appxpackage
-get-appxpackage -allusers *bingweather* | remove-appxpackage
-get-appxpackage -allusers *holographic* | remove-appxpackage
-get-appxpackage -allusers *windowsstore* | remove-appxpackage
-get-appxpackage -allusers *xbox* | remove-appxpackage
+Non-Removable Built-In APPs
+PS C:\Windows\system32> Get-AppxPackage -AllUsers | Select Name, NonRemovable
+
+-------------------------
+
+Get-AppxPackage -AllUsers *3dviewer* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *bingweather* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *communicationsapps* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *desktopappinstaller* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *gethelp* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *getstarted* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *heifimageextension* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *mixedreality* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *mspaint* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *officehub* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *onenote* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *people* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *photos* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *screensketch* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *skypeapp* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *solitairecollection* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *soundrecorder* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *stickynotes* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *vp9videoextensions* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *wallet* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *webmediaextensions* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *webpimageextension* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *windowsalarms* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *windowscalculator* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *windowscamera* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *windowsfeedbackhub* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *windowsmaps* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *xbox* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *yourphone* | Remove-AppxPackage -AllUsers
+Get-AppxPackage -AllUsers *zune* | Remove-AppxPackage -AllUsers
