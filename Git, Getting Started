@@ -98,7 +98,6 @@ $ git reset HEAD^ --hard
 Reset Files to Previous Commit, Using the Hash
 $ git reset fa72393 --hard
 
-
  - Development
  - Staging (Test Environment)
  - Production
@@ -121,6 +120,11 @@ $ git merge <FEATURE-NAME>
   *Show git tree
   $ git log --all --decorate --oneline --graph
 
+Rename Branch
+$ git branch -m <OLDNAME> <NEWNAME>
+
+Rename Current Branch
+$ git branch -m <NEWNAME>
 
 Delete Branch After Work is Complete
 $ git branch -d <FEATURE-NAME>
