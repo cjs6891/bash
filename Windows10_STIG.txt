@@ -1,0 +1,33 @@
+net start winrm
+
+*TrustedHosts Not Needed?
+winrm set winrm/config/client @{TrustedHosts="192.168.68.0/24"}
+
+winrm get winrm/config/client
+
+Group Policy Configuration...
+Computer Configuration
+	 - Administrative Tools
+		 - Windows Components
+			 - Windows Remote Management (WinRM)
+
+-------------------------
+
+Remote Registry Settings
+
+@echo off
+:: Enable Administrative Shares
+reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\system /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+
+:: Disable UAC
+reg add HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+
+:: Enable AutoShareServer
+reg add HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters /v AutoShareServer /t REG_DWORD /d 1 /f
+
+:: Enable AutoShareWks
+reg add HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters /v AutoShareWks /t REG_DWORD /d 1 /f
+
+PAUSE
+
+::shutdown /r /t 0
