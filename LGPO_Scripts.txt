@@ -1,0 +1,66 @@
+Here is an example of how you can use LGPO.exe to backup local group policy:
+
+@echo off
+setlocal
+
+set backupdir=%~dp0\backup
+if not exist "%backupdir%" mkdir "%backupdir%"
+
+set date=%date:/=-%
+set time=%time::=-%
+set time=%time:.=-%
+set datetime=%date%_%time%
+
+set backupfile="%backupdir%\%datetime%.pol"
+echo Backing up local group policy to %backupfile%
+lgpo.exe /b %backupdir% /n "Backup"
+
+echo Done.
+
+
+
+
+Here is an example of how you can use LGPO.exe to restore local group policy:
+
+@echo off
+setlocal
+
+set backupdir=%~dp0\backup
+
+echo Restoring local group policy from %backupdir%
+lgpo.exe /g %backupdir%
+
+echo Done.
+
+
+resets the local group policy
+
+@echo off
+echo Resetting Local Group Policy and Security Settings...
+echo.
+echo Please wait...
+echo.
+RD /S /Q "C:\Windows\System32\GroupPolicyUsers"
+RD /S /Q "C:\Windows\System32\GroupPolicy"
+gpupdate /force
+echo.
+echo Done!
+pause
+
+
+
+
+disables Windows Firewall using Group Policy for all profiles
+
+@echo off
+echo Disabling Windows Firewall using Group Policy...
+echo.
+echo Please wait...
+echo.
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\DomainProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\PublicProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f
+REG ADD "HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\StandardProfile" /v "EnableFirewall" /t REG_DWORD /d "0" /f
+gpupdate /force
+echo.
+echo Done!
+pause
