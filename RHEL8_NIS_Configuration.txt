@@ -1,0 +1,65 @@
+How to configure NIS (Network Information Service) Master and Slave servers in Red Hat Enterprise Linux
+Red Hat Enterprise Linux 5, 6, 7, 8
+https://access.redhat.com/solutions/47192
+
+
+How to configure RHEL 8 system as NIS client
+https://access.redhat.com/solutions/6369401
+
+-------------------------
+
+SERVER
+# yum install yp*
+# nisdomainname qwerty.local
+# echo "NISDOMAIN = qwerty.local" > /etc/sysconfig/network
+# systemctl start rpcbind
+# systemctl enable rpcbind
+# systemctl start yppasswdd
+# systemctl enable yppasswdd
+# systemctl start ypserv
+# systemctl enable ypserv
+# rpcinfo -p localhost
+# /usr/lib64/yp/ypinit -m
+
+Adding Users into the NIS Database:
+# useradd --gid users --home-dir /tmp nisuser007
+# passwd nisuser007
+# make -C /var/yp
+
+# useradd --gid users --home-dir /net/rhel84-server/NFS_SHARE/nisuser008 nisuser008
+# passwd nisuser008
+# make -C /var/yp
+
+----------
+
+NFS Server Configuration
+
+# yum install autofs nfs-utils
+
+# cd /
+# mkdir NFS_SHARE
+# chmod 2770 /NFS_SHARE
+# chgrp users /NFS_SHARE
+
+echo "/NFS_SHARE     192.168.0.0/16(rw)" > /etc/exports
+
+# systemctl start nfs-server
+# exportfs
+
+
+-------------------------
+
+
+CLIENT
+# yum install ypbind
+# nisdomainname qwerty.local
+# echo "NISDOMAIN = qwerty.local" > /etc/sysconfig/network
+# authselect select nis --force
+# echo "192.168.254.100  rhel84-server qwerty.local" >> /etc/hosts
+# echo "domain qwerty.local server rhel84-server" >> /etc/yp.conf
+
+----------
+
+NFS Configuration
+# yum install autofs nfs-utils
+# cd /net/rhel84-server
